@@ -1,0 +1,7 @@
+{
+    "key.reroll-trades.reroll": "交易リロール",
+    "category.reroll-trades": "Reroll Trades",
+    "gui.reroll-trades.reroll": "交易リロール",
+    "message.reroll-trades.already_traded": "この村人はすでに交易済みのためリロールできません。",
+    "message.reroll-trades.must_sneak": "リロールするにはスニークが必要です。"
+}

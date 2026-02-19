@@ -3,27 +3,27 @@
 	"id": "reroll-trades",
 	"version": "${version}",
 	"name": "Reroll Trades",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Reroll villager trades with a button or keybind (R). Free rerolls — no emerald cost!",
 	"authors": [
-		"Me!"
+		"misemise"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/misemise/reroll-trades"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/reroll-trades/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
 			"net.misemise.RerollTrades"
 		],
-		"fabric-datagen": [
-			"net.misemise.RerollTradesDataGenerator"
+		"client": [
+			"net.misemise.RerollTradesClient"
 		]
 	},
 	"mixins": [
-		"reroll-trades.mixins.json"
+		"reroll-trades.mixins.json",
+		"reroll-trades.client-mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.18.4",
