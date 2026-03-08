@@ -154,8 +154,6 @@ public class RerollTrades implements ModInitializer {
 		Random random = Random.create();
 		TradeOfferList newOffers = new TradeOfferList();
 
-		// Note: no ServerWorld parameter needed - removed unused variable.
-
 		for (int lvl = 1; lvl <= level; lvl++) {
 			TradeOffers.Factory[] factories = leveledTrades.get(lvl);
 			if (factories == null)
@@ -173,7 +171,8 @@ public class RerollTrades implements ModInitializer {
 				indices[j] = tmp;
 			}
 			for (int i = 0; i < offerCount; i++) {
-				// 1.21 / 1.21.1: Factory.create takes (Entity, Random) — no ServerWorld.
+				// 1.21 – 1.21.3: Factory.create takes (Entity, Random) — ServerWorld added in
+				// 1.21.4.
 				TradeOffer offer = factories[indices[i]].create(villager, random);
 				if (offer != null)
 					newOffers.add(offer);
