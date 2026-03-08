@@ -47,15 +47,15 @@ public class RerollTrades implements ModInitializer {
 	 * Set by VillagerEntityTradeMixin#onAfterUsing when a player completes a trade.
 	 * Never cleared — once locked, always locked for this player+villager pair.
 	 */
-	// 1.21 / 1.21.1: AttachmentRegistry.create() does not exist yet.
-	// Use AttachmentRegistry.builder() instead.
-	// Note: create() was added in 1.21.4; builder() was deprecated at that point.
-	public static final AttachmentType<HashSet<UUID>> REROLL_LOCKED = AttachmentRegistry.<HashSet<UUID>>builder()
-			.persistent(Codec.list(
-					Codec.STRING.xmap(UUID::fromString, UUID::toString))
-					.xmap(HashSet::new, ArrayList::new))
-			.initializer(HashSet::new)
-			.buildAndRegister(Identifier.of(MOD_ID, "locked_players"));
+	// 1.21.4+: AttachmentRegistry.create() is the new API (builder() was
+	// deprecated).
+	public static final AttachmentType<HashSet<UUID>> REROLL_LOCKED = AttachmentRegistry.create(
+			Identifier.of(MOD_ID, "locked_players"),
+			builder -> builder
+					.persistent(Codec.list(
+							Codec.STRING.xmap(UUID::fromString, UUID::toString))
+							.xmap(HashSet::new, ArrayList::new))
+					.initializer(HashSet::new));
 
 	/**
 	 * In-memory guard to prevent a player from having two reroll operations
@@ -171,8 +171,7 @@ public class RerollTrades implements ModInitializer {
 				indices[j] = tmp;
 			}
 			for (int i = 0; i < offerCount; i++) {
-				// 1.21 – 1.21.3: Factory.create takes (Entity, Random) — ServerWorld added in
-				// 1.21.4.
+				// Factory.create(Entity, Random) — signature is the same across all 1.21.x.
 				TradeOffer offer = factories[indices[i]].create(villager, random);
 				if (offer != null)
 					newOffers.add(offer);
