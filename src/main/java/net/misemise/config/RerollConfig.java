@@ -19,7 +19,8 @@ public class RerollConfig {
     private static final Path CONFIG_PATH = FabricLoader.getInstance()
             .getConfigDir().resolve("reroll-trades.json");
 
-    private static RerollConfig INSTANCE;
+    // ④ volatile + synchronized to prevent race conditions on server threads
+    private static volatile RerollConfig INSTANCE;
 
     // ----- Config fields -----
     public boolean requireSneaking = false;
@@ -28,7 +29,11 @@ public class RerollConfig {
     // ----- Access -----
     public static RerollConfig get() {
         if (INSTANCE == null) {
-            INSTANCE = load();
+            synchronized (RerollConfig.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = load();
+                }
+            }
         }
         return INSTANCE;
     }

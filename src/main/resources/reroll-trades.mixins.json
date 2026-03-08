@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"MerchantScreenHandlerAccessor",
-		"VillagerEntityAccessor"
+		"VillagerLastCustomerAccessor",
+		"VillagerEntityTradeMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

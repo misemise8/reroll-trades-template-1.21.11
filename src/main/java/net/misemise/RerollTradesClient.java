@@ -7,26 +7,53 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.util.Identifier;
 import net.misemise.config.RerollConfig;
+import net.misemise.mixin.IRerollLockable;
+import net.misemise.network.RerollLockedPayload;
 import net.misemise.network.RerollParticlePayload;
+import net.misemise.network.RerollRejectPayload;
 import org.lwjgl.glfw.GLFW;
 
 public class RerollTradesClient implements ClientModInitializer {
 
-    // Public so the mixin can access it to check key matches
+    // Public so MerchantScreenMixin can check key match
     public static KeyBinding rerollKey;
 
     @Override
     public void onInitializeClient() {
-        // Register keybind — appears in Options > Controls > Reroll Trades category
+        // Register reroll keybind (configurable in Options > Controls)
+        // 1.21 / 1.21.1: KeyBinding category is a plain String translation key.
+        // KeyBinding.Category(Identifier) was introduced in a later version.
         rerollKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.reroll-trades.reroll",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
-                new KeyBinding.Category(Identifier.of("reroll-trades", "general"))));
+                "key.categories.reroll-trades.general"));
 
-        // Register S2C particle packet receiver
+        // S2C: server tells client that reroll is permanently locked for this villager
+        ClientPlayNetworking.registerGlobalReceiver(RerollLockedPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                MinecraftClient client = context.client();
+                // Use IRerollLockable interface — instanceof MerchantScreenMixin is always
+                // false at runtime because Mixin dissolves into the target class.
+                if (client.currentScreen instanceof IRerollLockable lockable) {
+                    lockable.rerollTrades$lock();
+                }
+            });
+        });
+
+        // S2C: server rejected the reroll request (must sneak / no profession etc.)
+        // Re-enables the button that was optimistically disabled on click/keypress.
+        ClientPlayNetworking.registerGlobalReceiver(RerollRejectPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                MinecraftClient client = context.client();
+                if (client.currentScreen instanceof IRerollLockable lockable) {
+                    lockable.rerollTrades$unlock();
+                }
+            });
+        });
+
+        // S2C: particle effect on successful reroll
         ClientPlayNetworking.registerGlobalReceiver(RerollParticlePayload.ID, (payload, context) -> {
             context.client().execute(() -> {
                 RerollConfig config = RerollConfig.get();
@@ -45,7 +72,9 @@ public class RerollTradesClient implements ClientModInitializer {
                     double dx = (Math.random() - 0.5) * 0.8;
                     double dy = Math.random() * 0.5;
                     double dz = (Math.random() - 0.5) * 0.8;
-                    client.world.addImportantParticleClient(ParticleTypes.HAPPY_VILLAGER,
+                    // 1.21 / 1.21.1: addImportantParticleClient was added in 1.21.5.
+                    // Use addParticle instead.
+                    client.world.addParticle(ParticleTypes.HAPPY_VILLAGER,
                             cx + dx, cy + dy, cz + dz,
                             dx * 0.1, dy * 0.1, dz * 0.1);
                 }
