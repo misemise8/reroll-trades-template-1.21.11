@@ -72,9 +72,8 @@ public class RerollTradesClient implements ClientModInitializer {
                     double dx = (Math.random() - 0.5) * 0.8;
                     double dy = Math.random() * 0.5;
                     double dz = (Math.random() - 0.5) * 0.8;
-                    // 1.21 / 1.21.1: addImportantParticleClient was added in 1.21.5.
-                    // Use addParticle instead.
-                    client.world.addParticle(ParticleTypes.HAPPY_VILLAGER,
+                    // 1.21.5+: addImportantParticleClient is available.
+                    client.world.addImportantParticleClient(ParticleTypes.HAPPY_VILLAGER,
                             cx + dx, cy + dy, cz + dz,
                             dx * 0.1, dy * 0.1, dz * 0.1);
                 }

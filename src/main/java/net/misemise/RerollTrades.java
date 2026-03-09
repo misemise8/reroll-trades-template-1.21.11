@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.network.packet.s2c.play.SetTradeOffersS2CPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -132,15 +133,16 @@ public class RerollTrades implements ModInitializer {
 			return;
 		}
 
-		// Generate new offers directly from the profession's trade table.
-		// We do NOT call fillRecipes() to avoid side-effects that cause
-		// temporary profession loss.
-		// 1.21 / 1.21.1: VillagerData.profession() returns VillagerProfession directly.
-		VillagerProfession profession = villager.getVillagerData().getProfession();
-		int level = villager.getVillagerData().getLevel();
+		// 1.21.5+: VillagerData is a Java Record; profession() returns
+		// RegistryEntry<VillagerProfession>.
+		RegistryEntry<VillagerProfession> professionEntry = villager.getVillagerData().profession();
+		int level = villager.getVillagerData().level();
 
-		// 1.21 / 1.21.1: PROFESSION_TO_LEVELED_TRADE is keyed by VillagerProfession.
-		Int2ObjectMap<TradeOffers.Factory[]> leveledTrades = TradeOffers.PROFESSION_TO_LEVELED_TRADE.get(profession);
+		// 1.21.5+: PROFESSION_TO_LEVELED_TRADE is keyed by
+		// RegistryKey<VillagerProfession>.
+		Int2ObjectMap<TradeOffers.Factory[]> leveledTrades = professionEntry.getKey()
+				.map(TradeOffers.PROFESSION_TO_LEVELED_TRADE::get)
+				.orElse(null);
 
 		if (leveledTrades == null) {
 			// Nitwit or unemployed — correct, specific message
