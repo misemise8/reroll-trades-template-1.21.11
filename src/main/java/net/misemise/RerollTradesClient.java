@@ -21,14 +21,13 @@ public class RerollTradesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        // Register reroll keybind (configurable in Options > Controls)
-        // 1.21 / 1.21.1: KeyBinding category is a plain String translation key.
-        // KeyBinding.Category(Identifier) was introduced in a later version.
+        // 1.21.9+: KeyBinding.Category is required (not a plain String).
+        // Category.create(String) is private; use Category.create(Identifier) instead.
         rerollKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.reroll-trades.reroll",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
-                "key.categories.reroll-trades.general"));
+                KeyBinding.Category.create(net.minecraft.util.Identifier.of("reroll-trades", "general"))));
 
         // S2C: server tells client that reroll is permanently locked for this villager
         ClientPlayNetworking.registerGlobalReceiver(RerollLockedPayload.ID, (payload, context) -> {

@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.text.Text;
 import net.misemise.RerollTradesClient;
@@ -78,14 +79,14 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         addDrawableChild(rerollButton);
     }
 
-    // 1.21 / 1.21.1: keyPressed uses (int keyCode, int scanCode, int modifiers)
-    // KeyInput class did not exist until 1.21.10.
+    // 1.21.9+: keyPressed uses (KeyInput) — introduced alongside
+    // KeyBinding.Category.
     @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
-    private void rerollTrades$keyPressed(int keyCode, int scanCode, int modifiers,
+    private void rerollTrades$keyPressed(KeyInput keyInput,
             CallbackInfoReturnable<Boolean> cir) {
         if (!rerollLocked
                 && RerollTradesClient.rerollKey != null
-                && RerollTradesClient.rerollKey.matchesKey(keyCode, scanCode)) {
+                && RerollTradesClient.rerollKey.matchesKey(keyInput)) {
             ClientPlayNetworking.send(new RerollTradesPayload());
             // Optimistically lock until server responds.
             rerollLocked = true;

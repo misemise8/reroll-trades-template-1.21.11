@@ -5,33 +5,52 @@ Fabric Loom: 1.15.4
 > Task :compileJava FAILED
 .\gradlew : C:\Users\semit\IdeaProjects\reroll-tra
 des-template-1.21.11\src\main\java\net\misemise\mi
-xin\VillagerEntityTradeMixin.java:27: 繧ｨ繝ｩ繝ｼ: 繧ｷ繝ｳ
-繝懊Ν繧定ｦ九▽縺代ｉ繧後∪縺帙ｓ
+xin\MerchantScreenMixin.java:7: エラー: シンボルを見つけられません
 発生場所 行:1 文字:1
 + .\gradlew compileJava 2>&1 | Out-File build_erro
 rs.txt -Encoding utf8 ...
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~
     + CategoryInfo          : NotSpecified: (C:\U 
-   sers\semit\...Ν繧定ｦ九▽縺代ｉ繧後∪縺帙ｓ:String) [], Rem  
+   sers\semit\...: シンボルを見つけられません:String) [], Rem  
   oteException
     + FullyQualifiedErrorId : NativeCommandError
  
-        if (self.getEntityWorld().isClient())
-                ^
-  繧ｷ繝ｳ繝懊Ν:   繝｡繧ｽ繝・ラ getEntityWorld()
-  蝣ｴ謇: 繧ｿ繧､繝遊illagerEntity縺ｮ螟画焚 self
+import net.minecraft.client.input.KeyCodes;
+                                 ^
+  シンボル:   クラス KeyCodes
+  場所: パッケージ net.minecraft.client.input
+C:\Users\semit\IdeaProjects\reroll-trades-template
+-1.21.11\src\main\java\net\misemise\mixin\Merchant
+ScreenMixin.java:10: エラー: パッケージnet.minecraft.util.
+inputは存在しません
+import net.minecraft.util.input.KeyInput;
+                               ^
+C:\Users\semit\IdeaProjects\reroll-trades-template
+-1.21.11\src\main\java\net\misemise\mixin\Merchant
+ScreenMixin.java:86: エラー: シンボルを見つけられません
+    private void rerollTrades$keyPressed(KeyInput 
+keyInput,
+                                         ^
+  シンボル:   クラス KeyInput
+  場所: クラス MerchantScreenMixin
 C:\Users\semit\IdeaProjects\reroll-trades-template
 -1.21.11\src\main\java\net\misemise\mixin\Villager
-EntityTradeMixin.java:57: 繧ｨ繝ｩ繝ｼ: 繧ｷ繝ｳ繝懊Ν繧定ｦ九▽縺代ｉ繧
-後∪縺帙ｓ
-        if (self.getEntityWorld().isClient())
+EntityTradeMixin.java:27: エラー: シンボルを見つけられません
+        if (self.getWorld().isClient())
                 ^
-  繧ｷ繝ｳ繝懊Ν:   繝｡繧ｽ繝・ラ getEntityWorld()
-  蝣ｴ謇: 繧ｿ繧､繝遊illagerEntity縺ｮ螟画焚 self
-繧ｨ繝ｩ繝ｼ2蛟・
+  シンボル:   メソッド getWorld()
+  場所: タイプVillagerEntityの変数 self
+C:\Users\semit\IdeaProjects\reroll-trades-template
+-1.21.11\src\main\java\net\misemise\mixin\Villager
+EntityTradeMixin.java:57: エラー: シンボルを見つけられません
+        if (self.getWorld().isClient())
+                ^
+  シンボル:   メソッド getWorld()
+  場所: タイプVillagerEntityの変数 self
+エラー5個
+
 
 [Incubating] Problems report is available at: file:///C:/Users/semit/IdeaProjects/reroll-trades-template-1.21.11/build/reports/problems/problems-report.html
-
 FAILURE: Build failed with an exception.
 
 * What went wrong:
@@ -39,22 +58,41 @@ Execution failed for task ':compileJava'.
 > Compilation failed; see the compiler output belo
 w.
   C:\Users\semit\IdeaProjects\reroll-trades-templa
-te-1.21.11\src\main\java\net\misemise\mixin\Villag
-erEntityTradeMixin.java:27: 繧ｨ繝ｩ繝ｼ: 繧ｷ繝ｳ繝懊Ν繧定ｦ九▽縺代
-ｉ繧後∪縺帙ｓ
-          if (self.getEntityWorld().isClient())
-                  ^
-    繧ｷ繝ｳ繝懊Ν:   繝｡繧ｽ繝・ラ getEntityWorld()
-    蝣ｴ謇: 繧ｿ繧､繝遊illagerEntity縺ｮ螟画焚 self
+te-1.21.11\src\main\java\net\misemise\mixin\Mercha
+ntScreenMixin.java:7: エラー: シンボルを見つけられません
+  import net.minecraft.client.input.KeyCodes;
+                                   ^
+    シンボル:   クラス KeyCodes
+    場所: パッケージ net.minecraft.client.input
+  C:\Users\semit\IdeaProjects\reroll-trades-templa
+te-1.21.11\src\main\java\net\misemise\mixin\Mercha
+ntScreenMixin.java:86: エラー: シンボルを見つけられません
+      private void rerollTrades$keyPressed(KeyInpu
+t keyInput,
+                                           ^
+    シンボル:   クラス KeyInput
+    場所: クラス MerchantScreenMixin
   C:\Users\semit\IdeaProjects\reroll-trades-templa
 te-1.21.11\src\main\java\net\misemise\mixin\Villag
-erEntityTradeMixin.java:57: 繧ｨ繝ｩ繝ｼ: 繧ｷ繝ｳ繝懊Ν繧定ｦ九▽縺代
-ｉ繧後∪縺帙ｓ
-          if (self.getEntityWorld().isClient())
+erEntityTradeMixin.java:27: エラー: シンボルを見つけられません
+          if (self.getWorld().isClient())
                   ^
-    繧ｷ繝ｳ繝懊Ν:   繝｡繧ｽ繝・ラ getEntityWorld()
-    蝣ｴ謇: 繧ｿ繧､繝遊illagerEntity縺ｮ螟画焚 self
-  繧ｨ繝ｩ繝ｼ2蛟・
+    シンボル:   メソッド getWorld()
+    場所: タイプVillagerEntityの変数 self
+  C:\Users\semit\IdeaProjects\reroll-trades-templa
+te-1.21.11\src\main\java\net\misemise\mixin\Villag
+erEntityTradeMixin.java:57: エラー: シンボルを見つけられません
+          if (self.getWorld().isClient())
+                  ^
+    シンボル:   メソッド getWorld()
+    場所: タイプVillagerEntityの変数 self
+  C:\Users\semit\IdeaProjects\reroll-trades-templa
+te-1.21.11\src\main\java\net\misemise\mixin\Mercha
+ntScreenMixin.java:10: エラー: パッケージnet.minecraft.uti
+l.inputは存在しません
+  import net.minecraft.util.input.KeyInput;
+                                 ^
+  エラー5個
 
 * Try:
 > Check your code and dependencies to fix the comp
