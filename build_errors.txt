@@ -4,24 +4,31 @@ Fabric Loom: 1.15.4
 
 > Task :compileJava FAILED
 .\gradlew : C:\Users\semit\IdeaProjects\reroll-tra
-des-template-1.21.11\src\main\java\net\misemise\Re
-rollTrades.java:140: 繧ｨ繝ｩ繝ｼ: 荳埼←蜷医↑蝙・ RegistryEntr
-y<VillagerProfession>繧歎illagerProfession縺ｫ螟画鋤縺ｧ縺阪∪
-縺帙ｓ:
+des-template-1.21.11\src\main\java\net\misemise\mi
+xin\VillagerEntityTradeMixin.java:27: 繧ｨ繝ｩ繝ｼ: 繧ｷ繝ｳ
+繝懊Ν繧定ｦ九▽縺代ｉ繧後∪縺帙ｓ
 発生場所 行:1 文字:1
 + .\gradlew compileJava 2>&1 | Out-File build_erro
 rs.txt -Encoding utf8 ...
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~
     + CategoryInfo          : NotSpecified: (C:\U 
-   sers\semit\...n縺ｫ螟画鋤縺ｧ縺阪∪縺帙ｓ::String) [], Rem  
+   sers\semit\...Ν繧定ｦ九▽縺代ｉ繧後∪縺帙ｓ:String) [], Rem  
   oteException
     + FullyQualifiedErrorId : NativeCommandError
  
-		VillagerProfession profession = villager.getVill
-agerData().profession();
-		                                                
-                     ^
-繧ｨ繝ｩ繝ｼ1蛟・
+        if (self.getEntityWorld().isClient())
+                ^
+  繧ｷ繝ｳ繝懊Ν:   繝｡繧ｽ繝・ラ getEntityWorld()
+  蝣ｴ謇: 繧ｿ繧､繝遊illagerEntity縺ｮ螟画焚 self
+C:\Users\semit\IdeaProjects\reroll-trades-template
+-1.21.11\src\main\java\net\misemise\mixin\Villager
+EntityTradeMixin.java:57: 繧ｨ繝ｩ繝ｼ: 繧ｷ繝ｳ繝懊Ν繧定ｦ九▽縺代ｉ繧
+後∪縺帙ｓ
+        if (self.getEntityWorld().isClient())
+                ^
+  繧ｷ繝ｳ繝懊Ν:   繝｡繧ｽ繝・ラ getEntityWorld()
+  蝣ｴ謇: 繧ｿ繧､繝遊illagerEntity縺ｮ螟画焚 self
+繧ｨ繝ｩ繝ｼ2蛟・
 
 [Incubating] Problems report is available at: file:///C:/Users/semit/IdeaProjects/reroll-trades-template-1.21.11/build/reports/problems/problems-report.html
 
@@ -32,14 +39,22 @@ Execution failed for task ':compileJava'.
 > Compilation failed; see the compiler output belo
 w.
   C:\Users\semit\IdeaProjects\reroll-trades-templa
-te-1.21.11\src\main\java\net\misemise\RerollTrades
-.java:140: 繧ｨ繝ｩ繝ｼ: 荳埼←蜷医↑蝙・ RegistryEntry<Villager
-Profession>繧歎illagerProfession縺ｫ螟画鋤縺ｧ縺阪∪縺帙ｓ:
-  		VillagerProfession profession = villager.getVi
-llagerData().profession();
-  		                                              
-                       ^
-  繧ｨ繝ｩ繝ｼ1蛟・
+te-1.21.11\src\main\java\net\misemise\mixin\Villag
+erEntityTradeMixin.java:27: 繧ｨ繝ｩ繝ｼ: 繧ｷ繝ｳ繝懊Ν繧定ｦ九▽縺代
+ｉ繧後∪縺帙ｓ
+          if (self.getEntityWorld().isClient())
+                  ^
+    繧ｷ繝ｳ繝懊Ν:   繝｡繧ｽ繝・ラ getEntityWorld()
+    蝣ｴ謇: 繧ｿ繧､繝遊illagerEntity縺ｮ螟画焚 self
+  C:\Users\semit\IdeaProjects\reroll-trades-templa
+te-1.21.11\src\main\java\net\misemise\mixin\Villag
+erEntityTradeMixin.java:57: 繧ｨ繝ｩ繝ｼ: 繧ｷ繝ｳ繝懊Ν繧定ｦ九▽縺代
+ｉ繧後∪縺帙ｓ
+          if (self.getEntityWorld().isClient())
+                  ^
+    繧ｷ繝ｳ繝懊Ν:   繝｡繧ｽ繝・ラ getEntityWorld()
+    蝣ｴ謇: 繧ｿ繧､繝遊illagerEntity縺ｮ螟画焚 self
+  繧ｨ繝ｩ繝ｼ2蛟・
 
 * Try:
 > Check your code and dependencies to fix the comp

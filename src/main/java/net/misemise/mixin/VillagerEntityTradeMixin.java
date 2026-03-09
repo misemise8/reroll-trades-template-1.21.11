@@ -24,7 +24,7 @@ public class VillagerEntityTradeMixin {
     @Inject(method = "afterUsing", at = @At("TAIL"))
     private void onAfterUsing(TradeOffer offer, CallbackInfo ci) {
         VillagerEntity self = (VillagerEntity) (Object) this;
-        if (self.getEntityWorld().isClient())
+        if (self.getWorld().isClient())
             return;
 
         // lastCustomer is PlayerEntity; it's only a ServerPlayerEntity on server
@@ -54,7 +54,7 @@ public class VillagerEntityTradeMixin {
             return;
 
         VillagerEntity self = (VillagerEntity) (Object) this;
-        if (self.getEntityWorld().isClient())
+        if (self.getWorld().isClient())
             return;
 
         HashSet<UUID> locked = self.getAttached(RerollTrades.REROLL_LOCKED);
