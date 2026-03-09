@@ -2,8 +2,8 @@
 	"schemaVersion": 1,
 	"id": "reroll-trades",
 	"version": "${version}",
-	"name": "Reroll Trades",
-	"description": "Reroll villager trades with a button or keybind (R). Free rerolls — no emerald cost!",
+	"name": "Reroll Trades [MC 1.21.6-1.21.8]",
+	"description": "Reroll villager trades with a button or keybind (R). Free rerolls — no emerald cost! (Supports MC 1.21.6, 1.21.7, and 1.21.8)",
 	"authors": [
 		"misemise"
 	],
