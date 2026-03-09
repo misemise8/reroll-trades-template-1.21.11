@@ -80,7 +80,11 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
 
     // 1.21 / 1.21.1: keyPressed uses (int keyCode, int scanCode, int modifiers)
     // KeyInput class did not exist until 1.21.10.
-    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    // require=0: keyPressed may be defined in HandledScreen rather than
+    // MerchantScreen
+    // in some versions; require=0 prevents a crash if the injection point isn't
+    // found.
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true, require = 0)
     private void rerollTrades$keyPressed(int keyCode, int scanCode, int modifiers,
             CallbackInfoReturnable<Boolean> cir) {
         if (!rerollLocked
