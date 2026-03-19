@@ -8,7 +8,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.particle.ParticleTypes;
 import net.misemise.config.RerollConfig;
-import net.misemise.mixin.IRerollLockable;
+import net.misemise.IRerollLockable;
 import net.misemise.network.RerollLockedPayload;
 import net.misemise.network.RerollParticlePayload;
 import net.misemise.network.RerollRejectPayload;
