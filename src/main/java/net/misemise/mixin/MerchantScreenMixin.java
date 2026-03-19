@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.text.Text;
+import net.misemise.IRerollLockable;
 import net.misemise.RerollTradesClient;
 import net.misemise.network.RerollTradesPayload;
 import org.spongepowered.asm.mixin.Mixin;
