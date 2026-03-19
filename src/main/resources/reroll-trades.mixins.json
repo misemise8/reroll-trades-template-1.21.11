@@ -1,4 +1,4 @@
-{
+﻿{
 	"required": true,
 	"package": "net.misemise.mixin",
 	"compatibilityLevel": "JAVA_21",
@@ -8,7 +8,7 @@
 		"VillagerEntityTradeMixin"
 	],
 	"injectors": {
-		"defaultRequire": 1
+		"defaultRequire": 0
 	},
 	"overwrites": {
 		"requireAnnotations": true

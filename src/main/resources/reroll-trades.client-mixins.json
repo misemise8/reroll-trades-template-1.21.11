@@ -1,4 +1,4 @@
-{
+﻿{
     "required": true,
     "package": "net.misemise.mixin",
     "compatibilityLevel": "JAVA_21",
@@ -6,6 +6,6 @@
         "MerchantScreenMixin"
     ],
     "injectors": {
-        "defaultRequire": 1
+        "defaultRequire": 0
     }
 }
