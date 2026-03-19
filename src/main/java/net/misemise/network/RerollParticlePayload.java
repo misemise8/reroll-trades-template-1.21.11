@@ -1,29 +1,23 @@
 package net.misemise.network;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-/**
- * S2C packet sent after a successful reroll to trigger particle effects on the
- * client.
- * Carries the villager's block position so particles appear at the right
- * location.
- */
-public record RerollParticlePayload(BlockPos pos) implements CustomPayload {
+public record RerollParticlePayload(BlockPos pos) implements CustomPacketPayload {
 
-    public static final CustomPayload.Id<RerollParticlePayload> ID = new CustomPayload.Id<>(
-            Identifier.of("reroll-trades", "particle"));
+    public static final CustomPacketPayload.Type<RerollParticlePayload> ID = new CustomPacketPayload.Type<>(
+            Identifier.fromNamespaceAndPath("reroll-trades", "particle"));
 
-    public static final PacketCodec<RegistryByteBuf, RerollParticlePayload> CODEC = PacketCodec.tuple(
-            BlockPos.PACKET_CODEC, RerollParticlePayload::pos,
-            RerollParticlePayload::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, RerollParticlePayload> CODEC =
+            StreamCodec.composite(  // tuple → composite
+                    BlockPos.STREAM_CODEC, RerollParticlePayload::pos,
+                    RerollParticlePayload::new);
 
     @Override
-    public CustomPayload.Id<? extends CustomPayload> getId() {
+    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

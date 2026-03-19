@@ -1,18 +1,13 @@
 package net.misemise.mixin;
 
-import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-/**
- * Accessor to invoke the protected fillRecipes(ServerWorld) method on
- * MerchantEntity
- * (which VillagerEntity overrides) to regenerate trade offers.
- */
-@Mixin(MerchantEntity.class)
+@Mixin(AbstractVillager.class)
 public interface VillagerEntityAccessor {
 
-    @Invoker("fillRecipes")
-    void invokeFillRecipes(ServerWorld world);
+    @Invoker("updateTrades")
+    void invokeUpdateTrades(ServerLevel level);
 }

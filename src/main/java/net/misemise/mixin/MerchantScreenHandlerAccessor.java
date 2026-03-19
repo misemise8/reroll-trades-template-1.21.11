@@ -1,16 +1,13 @@
 package net.misemise.mixin;
 
-import net.minecraft.screen.MerchantScreenHandler;
-import net.minecraft.village.Merchant;
+import net.minecraft.world.item.trading.Merchant;
+import net.minecraft.world.inventory.MerchantMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-/**
- * Accessor to get the private merchant field from MerchantScreenHandler.
- */
-@Mixin(MerchantScreenHandler.class)
+@Mixin(MerchantMenu.class)
 public interface MerchantScreenHandlerAccessor {
 
-    @Accessor("merchant")
+    @Accessor("trader")
     Merchant getMerchant();
 }
