@@ -1,4 +1,4 @@
-package net.misemise.mixin;
+﻿package net.misemise;
 
 /**
  * Interface injected into MerchantScreen via MerchantScreenMixin.
@@ -6,6 +6,10 @@ package net.misemise.mixin;
  * against the mixin class directly (which is always false at runtime).
  *
  * Usage: if (screen instanceof IRerollLockable l) l.rerollTrades$lock();
+ *
+ * NOTE: Must NOT be in the net.misemise.mixin package — the Mixin system
+ * owns that package and prohibits direct (non-mixin) class loading from it,
+ * causing IllegalClassLoadError / BootstrapMethodError at runtime.
  */
 public interface IRerollLockable {
     /** Called when the server confirms the player has traded (permanent lock). */
