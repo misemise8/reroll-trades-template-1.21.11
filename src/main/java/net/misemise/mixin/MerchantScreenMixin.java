@@ -1,4 +1,4 @@
-package net.misemise.mixin;
+﻿package net.misemise.mixin;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -80,7 +80,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
 
     // 1.21 / 1.21.1: keyPressed uses (int keyCode, int scanCode, int modifiers)
     // KeyInput class did not exist until 1.21.10.
-    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true, require = 0)
     private void rerollTrades$keyPressed(int keyCode, int scanCode, int modifiers,
             CallbackInfoReturnable<Boolean> cir) {
         if (!rerollLocked
