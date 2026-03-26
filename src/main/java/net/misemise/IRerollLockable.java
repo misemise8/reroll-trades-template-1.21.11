@@ -2,9 +2,8 @@ package net.misemise;
 
 /**
  * Interface injected into MerchantScreen via MerchantScreenMixin.
- * Must NOT be in the net.misemise.mixin package - the Mixin system
- * owns that package and prohibits direct class loading from it,
- * causing IllegalClassLoadError / BootstrapMethodError at runtime.
+ * Must NOT be in net.misemise.mixin - Mixin system owns that package
+ * and prohibits direct class loading, causing IllegalClassLoadError.
  */
 public interface IRerollLockable {
     void rerollTrades$lock();
