@@ -1,4 +1,4 @@
-﻿package net.misemise;
+package net.misemise;
 
 /**
  * Interface injected into MerchantScreen via MerchantScreenMixin.

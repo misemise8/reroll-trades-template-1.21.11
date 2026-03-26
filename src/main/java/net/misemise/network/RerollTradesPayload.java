@@ -7,7 +7,7 @@ import net.minecraft.util.Identifier;
 
 /**
  * C2S packet sent when the player clicks the Reroll button.
- * No data needed — the server identifies the villager from the player's open
+ * No data needed 窶・the server identifies the villager from the player's open
  * screen.
  */
 public record RerollTradesPayload() implements CustomPayload {
