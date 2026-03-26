@@ -6,7 +6,7 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 /**
- * Sent server → client to tell the MerchantScreen to lock the reroll button.
+ * Sent server 竊・client to tell the MerchantScreen to lock the reroll button.
  * Sent when the player has already traded with a villager (which persists
  * across server restarts via a Data Attachment on the VillagerEntity).
  */
