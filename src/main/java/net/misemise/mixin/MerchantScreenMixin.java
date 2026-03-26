@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.text.Text;
+import net.misemise.IRerollLockable;
 import net.misemise.RerollTradesClient;
 import net.misemise.network.RerollTradesPayload;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +29,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
 
     /**
      * One-way latch: set by server signal (RerollLockedPayload) when the player
-     * has traded with this villager. Never reset client-side — a new screen
+     * has traded with this villager. Never reset client-side 窶・a new screen
      * opening gets fresh state and server re-sends the signal if still locked.
      */
     @Unique
@@ -59,7 +60,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
     @Inject(method = "init", at = @At("TAIL"))
     private void rerollTrades$addRerollButton(CallbackInfo ci) {
         rerollButton = ButtonWidget.builder(
-                Text.literal("\u21BB"), // ↻ symbol
+                Text.literal("\u21BB"), // 竊ｻ symbol
                 button -> {
                     if (!rerollLocked) {
                         ClientPlayNetworking.send(new RerollTradesPayload());

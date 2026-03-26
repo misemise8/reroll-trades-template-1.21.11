@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Lightweight JSON config — no external dependencies required.
+ * Lightweight JSON config 窶・no external dependencies required.
  * Stored at config/reroll-trades.json
  */
 public class RerollConfig {
@@ -19,7 +19,7 @@ public class RerollConfig {
     private static final Path CONFIG_PATH = FabricLoader.getInstance()
             .getConfigDir().resolve("reroll-trades.json");
 
-    // ④ volatile + synchronized to prevent race conditions on server threads
+    // 竭｣ volatile + synchronized to prevent race conditions on server threads
     private static volatile RerollConfig INSTANCE;
 
     // ----- Config fields -----

@@ -45,7 +45,7 @@ public class RerollTrades implements ModInitializer {
 	 * Stores the UUIDs of players who have traded with this villager.
 	 * Survives server restarts via NBT serialization.
 	 * Set by VillagerEntityTradeMixin#onAfterUsing when a player completes a trade.
-	 * Never cleared — once locked, always locked for this player+villager pair.
+	 * Never cleared 窶・once locked, always locked for this player+villager pair.
 	 */
 	// 1.21.4+: AttachmentRegistry.create() is the new API (builder() was
 	// deprecated).
@@ -89,7 +89,7 @@ public class RerollTrades implements ModInitializer {
 	}
 
 	private void handleReroll(ServerPlayerEntity player) {
-		// ⑤ Guard against rapid duplicate packets from the same player
+		// 竭､ Guard against rapid duplicate packets from the same player
 		if (!IN_PROGRESS.add(player.getUuid()))
 			return;
 		try {
@@ -127,7 +127,7 @@ public class RerollTrades implements ModInitializer {
 			player.sendMessage(
 					Text.translatable("message.reroll-trades.already_traded").formatted(Formatting.RED),
 					true);
-			// Do NOT send RerollRejectPayload here — button should stay locked
+			// Do NOT send RerollRejectPayload here 窶・button should stay locked
 			// (will be handled by RerollLockedPayload which already grayed it out).
 			return;
 		}
@@ -143,7 +143,7 @@ public class RerollTrades implements ModInitializer {
 		Int2ObjectMap<TradeOffers.Factory[]> leveledTrades = TradeOffers.PROFESSION_TO_LEVELED_TRADE.get(profession);
 
 		if (leveledTrades == null) {
-			// Nitwit or unemployed — correct, specific message
+			// Nitwit or unemployed 窶・correct, specific message
 			player.sendMessage(
 					Text.translatable("message.reroll-trades.no_profession").formatted(Formatting.RED),
 					true);
@@ -171,7 +171,7 @@ public class RerollTrades implements ModInitializer {
 				indices[j] = tmp;
 			}
 			for (int i = 0; i < offerCount; i++) {
-				// Factory.create(Entity, Random) — signature is the same across all 1.21.x.
+				// Factory.create(Entity, Random) 窶・signature is the same across all 1.21.x.
 				TradeOffer offer = factories[indices[i]].create(villager, random);
 				if (offer != null)
 					newOffers.add(offer);
