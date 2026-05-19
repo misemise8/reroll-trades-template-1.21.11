@@ -1,0 +1,22 @@
+apply plugin: "net.fabricmc.fabric-loom"
+
+sourceSets {
+    main {
+        java.srcDir("../common/src/main/java")
+        resources.srcDir("../common/src/main/resources")
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "key.reroll-trades.reroll": "Reroll Trades",
+  "category.reroll-trades": "Reroll Trades",
+  "gui.reroll-trades.reroll": "Reroll Trades",
+  "message.reroll-trades.already_traded": "This villager has already traded with you and cannot be rerolled.",
+  "message.reroll-trades.must_sneak": "You must sneak to reroll trades."
+}
