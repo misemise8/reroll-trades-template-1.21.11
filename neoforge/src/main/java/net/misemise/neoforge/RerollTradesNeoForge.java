@@ -51,7 +51,7 @@ public final class RerollTradesNeoForge {
         );
     }
 
-    @EventBusSubscriber(modid = NEOFORGE_MOD_ID, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = NEOFORGE_MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
     public static final class ClientModEvents {
 
         private ClientModEvents() {

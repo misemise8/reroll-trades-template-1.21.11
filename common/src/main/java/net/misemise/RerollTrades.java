@@ -4,7 +4,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.inventory.MerchantMenu;
@@ -75,7 +74,7 @@ public final class RerollTrades {
 
         MerchantOffers offers = villager.getOffers();
         offers.clear();
-        ((VillagerEntityAccessor) villager).rerollTrades$updateTrades((ServerLevel) villager.level());
+        ((VillagerEntityAccessor) villager).rerollTrades$updateTrades();
 
         MerchantOffers newOffers = villager.getOffers();
         if (newOffers.isEmpty()) {
