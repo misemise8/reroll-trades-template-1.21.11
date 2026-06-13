@@ -9,7 +9,9 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.Identifier;
 import net.misemise.config.RerollConfig;
+import net.misemise.network.RerollLockedPayload;
 import net.misemise.network.RerollParticlePayload;
+import net.misemise.network.RerollRejectPayload;
 import org.lwjgl.glfw.GLFW;
 
 public class RerollTradesClient implements ClientModInitializer {
@@ -25,6 +27,24 @@ public class RerollTradesClient implements ClientModInitializer {
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
                 new KeyBinding.Category(Identifier.of("reroll-trades", "general"))));
+
+        ClientPlayNetworking.registerGlobalReceiver(RerollLockedPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                MinecraftClient client = context.client();
+                if (client.currentScreen instanceof IRerollLockable lockable) {
+                    lockable.rerollTrades$lock();
+                }
+            });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(RerollRejectPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                MinecraftClient client = context.client();
+                if (client.currentScreen instanceof IRerollLockable lockable) {
+                    lockable.rerollTrades$unlock();
+                }
+            });
+        });
 
         // Register S2C particle packet receiver
         ClientPlayNetworking.registerGlobalReceiver(RerollParticlePayload.ID, (payload, context) -> {
