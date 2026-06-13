@@ -24,7 +24,7 @@ subprojects {
     }
 
     base {
-        archivesName = rootProject.archives_base_name
+        archivesName = "${rootProject.archives_base_name}-${project.name}-${rootProject.mod_version}-${rootProject.minecraft_version}"
     }
 
     tasks.withType(JavaCompile).configureEach {
@@ -36,5 +36,9 @@ subprojects {
         withSourcesJar()
         sourceCompatibility = JavaVersion.toVersion(rootProject.java_version)
         targetCompatibility = JavaVersion.toVersion(rootProject.java_version)
+    }
+
+    tasks.withType(AbstractArchiveTask).configureEach {
+        archiveVersion = ""
     }
 }

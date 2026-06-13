@@ -4,7 +4,9 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.misemise.RerollTrades;
+import net.misemise.network.RerollLockedPayload;
 import net.misemise.network.RerollParticlePayload;
+import net.misemise.network.RerollRejectPayload;
 import net.misemise.network.RerollTradesPayload;
 
 public final class RerollTradesFabric implements ModInitializer {
@@ -15,6 +17,8 @@ public final class RerollTradesFabric implements ModInitializer {
 
         PayloadTypeRegistry.serverboundPlay().register(RerollTradesPayload.TYPE, RerollTradesPayload.STREAM_CODEC);
         PayloadTypeRegistry.clientboundPlay().register(RerollParticlePayload.TYPE, RerollParticlePayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(RerollLockedPayload.TYPE, RerollLockedPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(RerollRejectPayload.TYPE, RerollRejectPayload.STREAM_CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(RerollTradesPayload.TYPE, (payload, context) ->
                 context.server().execute(() -> RerollTrades.handleReroll(context.player()))

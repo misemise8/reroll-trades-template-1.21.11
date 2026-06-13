@@ -4,11 +4,26 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
+import net.misemise.IRerollLockable;
 import net.misemise.config.RerollConfig;
 
 public final class RerollTradesClient {
 
     private RerollTradesClient() {
+    }
+
+    public static void handleLocked() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.screen instanceof IRerollLockable lockable) {
+            lockable.rerollTrades$lock();
+        }
+    }
+
+    public static void handleRejected() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.screen instanceof IRerollLockable lockable) {
+            lockable.rerollTrades$unlock();
+        }
     }
 
     public static void handleParticle(BlockPos pos) {

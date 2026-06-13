@@ -1,7 +1,9 @@
 package net.misemise.neoforge;
 
 import net.misemise.RerollTrades;
+import net.misemise.network.RerollLockedPayload;
 import net.misemise.network.RerollParticlePayload;
+import net.misemise.network.RerollRejectPayload;
 import net.misemise.network.RerollTradesPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
@@ -20,6 +22,7 @@ public final class RerollTradesNeoForge {
     public static final String NEOFORGE_MOD_ID = "reroll_trades";
 
     public RerollTradesNeoForge(IEventBus modEventBus) {
+        RerollTradesNeoForgeAttachments.register(modEventBus);
         RerollTrades.init();
         modEventBus.addListener(this::registerPayloads);
     }
@@ -32,6 +35,8 @@ public final class RerollTradesNeoForge {
                 (payload, context) -> context.enqueueWork(() -> RerollTrades.handleReroll((ServerPlayer) context.player()))
         );
         registrar.playToClient(RerollParticlePayload.TYPE, RerollParticlePayload.STREAM_CODEC);
+        registrar.playToClient(RerollLockedPayload.TYPE, RerollLockedPayload.STREAM_CODEC);
+        registrar.playToClient(RerollRejectPayload.TYPE, RerollRejectPayload.STREAM_CODEC);
     }
 
     @EventBusSubscriber(modid = NEOFORGE_MOD_ID, value = Dist.CLIENT)
