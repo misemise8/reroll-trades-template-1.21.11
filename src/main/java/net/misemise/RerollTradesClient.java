@@ -9,7 +9,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.misemise.config.RerollConfig;
+import net.misemise.network.RerollLockedPayload;
 import net.misemise.network.RerollParticlePayload;
+import net.misemise.network.RerollRejectPayload;
 import org.lwjgl.glfw.GLFW;
 
 public class RerollTradesClient implements ClientModInitializer {
@@ -24,6 +26,24 @@ public class RerollTradesClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_R,
                 KeyMapping.Category.GAMEPLAY
         ));
+
+        ClientPlayNetworking.registerGlobalReceiver(RerollLockedPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                Minecraft client = context.client();
+                if (client.screen instanceof IRerollLockable lockable) {
+                    lockable.rerollTrades$lock();
+                }
+            });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(RerollRejectPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                Minecraft client = context.client();
+                if (client.screen instanceof IRerollLockable lockable) {
+                    lockable.rerollTrades$unlock();
+                }
+            });
+        });
 
         ClientPlayNetworking.registerGlobalReceiver(RerollParticlePayload.ID, (payload, context) -> {
             context.client().execute(() -> {

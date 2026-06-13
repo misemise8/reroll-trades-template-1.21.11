@@ -3,8 +3,10 @@
 	"package": "net.misemise.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
+		"AbstractVillagerTradeMixin",
 		"MerchantScreenHandlerAccessor",
-		"VillagerEntityAccessor"
+		"VillagerEntityAccessor",
+		"VillagerEntityTradeMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0
