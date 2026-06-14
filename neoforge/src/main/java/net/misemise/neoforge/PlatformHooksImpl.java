@@ -10,6 +10,7 @@ import net.misemise.network.RerollRejectPayload;
 import net.misemise.network.RerollTradesPayload;
 import net.misemise.platform.PlatformHooks;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.nio.file.Path;
@@ -30,7 +31,7 @@ public final class PlatformHooksImpl implements PlatformHooks {
 
     @Override
     public void sendRerollRequest() {
-        PacketDistributor.sendToServer(new RerollTradesPayload());
+        ClientPacketDistributor.sendToServer(new RerollTradesPayload());
     }
 
     @Override

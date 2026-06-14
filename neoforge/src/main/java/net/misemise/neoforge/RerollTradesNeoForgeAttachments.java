@@ -24,7 +24,7 @@ final class RerollTradesNeoForgeAttachments {
     private static final DeferredHolder<AttachmentType<?>, AttachmentType<HashSet<UUID>>> LOCKED_PLAYERS =
             ATTACHMENT_TYPES.register("locked_players",
                     () -> AttachmentType.builder((Supplier<HashSet<UUID>>) HashSet::new)
-                            .serialize(LOCKED_PLAYERS_CODEC)
+                            .serialize(LOCKED_PLAYERS_CODEC.fieldOf("locked_players"))
                             .build());
 
     private RerollTradesNeoForgeAttachments() {
