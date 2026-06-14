@@ -48,7 +48,7 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
 
     /**
      * Called by RerollTradesClient when RerollRejectPayload is received.
-     * Reverts the optimistic lock so the player can try again.
+     * Re-enables the button after a temporary server-side rejection.
      */
     @Unique
     public void rerollTrades$unlock() {
@@ -64,9 +64,6 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
                 button -> {
                     if (!rerollLocked) {
                         ClientPlayNetworking.send(new RerollTradesPayload());
-                        // Optimistically disable until server confirms or rejects.
-                        rerollLocked = true;
-                        rerollButton.active = false;
                     }
                 })
                 .dimensions(this.x - 24, this.y + 8, 22, 20)
@@ -88,10 +85,6 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
                 && RerollTradesClient.rerollKey != null
                 && RerollTradesClient.rerollKey.matchesKey(keyCode, scanCode)) {
             ClientPlayNetworking.send(new RerollTradesPayload());
-            // Optimistically lock until server responds.
-            rerollLocked = true;
-            if (rerollButton != null)
-                rerollButton.active = false;
             cir.setReturnValue(true);
         }
     }
