@@ -69,6 +69,7 @@ public final class RerollTrades {
                     Component.translatable("message.reroll-trades.already_traded").withStyle(ChatFormatting.RED),
                     true
             );
+            PlatformServices.sendLocked(player);
             return;
         }
 
