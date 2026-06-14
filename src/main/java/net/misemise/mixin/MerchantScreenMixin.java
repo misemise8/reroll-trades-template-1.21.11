@@ -55,7 +55,6 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
                         button -> {
                             if (!rerollLocked) {
                                 ClientPlayNetworking.send(new RerollTradesPayload());
-                                rerollTrades$lock();
                             }
                         })
                 .bounds(this.leftPos - 24, this.topPos + 8, 22, 20)
@@ -73,7 +72,6 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
                 RerollTradesClient.rerollKey.matches(event)) {
 
             ClientPlayNetworking.send(new RerollTradesPayload());
-            rerollTrades$lock();
             return true;
         }
         return super.keyPressed(event);

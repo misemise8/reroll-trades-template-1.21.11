@@ -94,6 +94,7 @@ public class RerollTrades implements ModInitializer {
 			player.sendSystemMessage(
 					Component.translatable("message.reroll-trades.already_traded").withStyle(ChatFormatting.RED),
 					true);
+			ServerPlayNetworking.send(player, new RerollLockedPayload());
 			return;
 		}
 
