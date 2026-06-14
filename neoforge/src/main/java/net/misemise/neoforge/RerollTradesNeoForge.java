@@ -5,6 +5,7 @@ import net.misemise.network.RerollLockedPayload;
 import net.misemise.network.RerollParticlePayload;
 import net.misemise.network.RerollRejectPayload;
 import net.misemise.network.RerollTradesPayload;
+import net.misemise.client.RerollTradesClient;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -12,7 +13,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -34,9 +34,21 @@ public final class RerollTradesNeoForge {
                 RerollTradesPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> RerollTrades.handleReroll((ServerPlayer) context.player()))
         );
-        registrar.playToClient(RerollParticlePayload.TYPE, RerollParticlePayload.STREAM_CODEC);
-        registrar.playToClient(RerollLockedPayload.TYPE, RerollLockedPayload.STREAM_CODEC);
-        registrar.playToClient(RerollRejectPayload.TYPE, RerollRejectPayload.STREAM_CODEC);
+        registrar.playToClient(
+                RerollParticlePayload.TYPE,
+                RerollParticlePayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> RerollTradesClient.handleParticle(payload.pos()))
+        );
+        registrar.playToClient(
+                RerollLockedPayload.TYPE,
+                RerollLockedPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(RerollTradesClient::handleLocked)
+        );
+        registrar.playToClient(
+                RerollRejectPayload.TYPE,
+                RerollRejectPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(RerollTradesClient::handleRejected)
+        );
     }
 
     @EventBusSubscriber(modid = NEOFORGE_MOD_ID, value = Dist.CLIENT)
@@ -50,9 +62,5 @@ public final class RerollTradesNeoForge {
             RerollTradesNeoForgeClient.registerKeyMappings(event);
         }
 
-        @SubscribeEvent
-        public static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
-            RerollTradesNeoForgeClient.registerClientPayloadHandlers(event);
-        }
     }
 }

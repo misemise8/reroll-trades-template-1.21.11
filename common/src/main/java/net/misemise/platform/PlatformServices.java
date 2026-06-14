@@ -3,7 +3,7 @@ package net.misemise.platform;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.Villager;
 
 import java.nio.file.Path;
 import java.util.ServiceLoader;

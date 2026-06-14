@@ -3,7 +3,7 @@ package net.misemise.mixin;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.misemise.platform.PlatformServices;
 import org.spongepowered.asm.mixin.Mixin;
