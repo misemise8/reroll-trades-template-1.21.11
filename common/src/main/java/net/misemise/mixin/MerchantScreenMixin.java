@@ -52,7 +52,6 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
                         button -> {
                             if (!rerollTrades$locked) {
                                 PlatformServices.sendRerollRequest();
-                                rerollTrades$lock();
                             }
                         }
                 )
@@ -68,7 +67,6 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
     public boolean keyPressed(KeyEvent event) {
         if (!rerollTrades$locked && PlatformServices.matchesRerollKey(event)) {
             PlatformServices.sendRerollRequest();
-            rerollTrades$lock();
             return true;
         }
 
