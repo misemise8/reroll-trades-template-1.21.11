@@ -53,7 +53,6 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
                 button -> {
                     if (!rerollLocked) {
                         ClientPlayNetworking.send(new RerollTradesPayload());
-                        rerollTrades$lock();
                     }
                 })
                 .dimensions(this.x - 24, this.y + 8, 22, 20)
@@ -73,7 +72,6 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
                 && RerollTradesClient.rerollKey != null
                 && RerollTradesClient.rerollKey.matchesKey(keyInput)) {
             ClientPlayNetworking.send(new RerollTradesPayload());
-            rerollTrades$lock();
             return true;
         }
         return super.keyPressed(keyInput);

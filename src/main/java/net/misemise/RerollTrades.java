@@ -107,6 +107,7 @@ public class RerollTrades implements ModInitializer {
 			player.sendMessage(
 					Text.translatable("message.reroll-trades.already_traded").formatted(Formatting.RED),
 					true);
+			ServerPlayNetworking.send(player, new RerollLockedPayload());
 			return;
 		}
 
