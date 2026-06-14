@@ -127,8 +127,7 @@ public class RerollTrades implements ModInitializer {
 			player.sendMessage(
 					Text.translatable("message.reroll-trades.already_traded").formatted(Formatting.RED),
 					true);
-			// Do NOT send RerollRejectPayload here — button should stay locked
-			// (will be handled by RerollLockedPayload which already grayed it out).
+			ServerPlayNetworking.send(player, new RerollLockedPayload());
 			return;
 		}
 
