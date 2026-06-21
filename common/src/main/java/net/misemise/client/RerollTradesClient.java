@@ -14,14 +14,14 @@ public final class RerollTradesClient {
 
     public static void handleLocked() {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen instanceof IRerollLockable lockable) {
+        if (minecraft.gui.screen() instanceof IRerollLockable lockable) {
             lockable.rerollTrades$lock();
         }
     }
 
     public static void handleRejected() {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen instanceof IRerollLockable lockable) {
+        if (minecraft.gui.screen() instanceof IRerollLockable lockable) {
             lockable.rerollTrades$unlock();
         }
     }
