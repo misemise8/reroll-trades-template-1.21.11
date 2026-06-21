@@ -30,7 +30,7 @@ public class RerollTradesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(RerollLockedPayload.ID, (payload, context) -> {
             context.client().execute(() -> {
                 Minecraft client = context.client();
-                if (client.screen instanceof IRerollLockable lockable) {
+                if (client.gui.screen() instanceof IRerollLockable lockable) {
                     lockable.rerollTrades$lock();
                 }
             });
@@ -39,7 +39,7 @@ public class RerollTradesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(RerollRejectPayload.ID, (payload, context) -> {
             context.client().execute(() -> {
                 Minecraft client = context.client();
-                if (client.screen instanceof IRerollLockable lockable) {
+                if (client.gui.screen() instanceof IRerollLockable lockable) {
                     lockable.rerollTrades$unlock();
                 }
             });

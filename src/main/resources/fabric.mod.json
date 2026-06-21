@@ -2,8 +2,8 @@
 	"schemaVersion": 1,
 	"id": "reroll-trades",
 	"version": "${version}",
-	"name": "Reroll Trades [MC 26.1.x]",
-	"description": "Reroll villager trades with a button or keybind (R). Free rerolls — no emerald cost! (Supports MC 26.1.x)",
+	"name": "Reroll Trades [MC 26.2]",
+	"description": "Reroll villager trades with a button or keybind (R). Free rerolls - no emerald cost! (Supports MC 26.2)",
 	"authors": [
 		"misemise"
 	],
@@ -27,7 +27,7 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.16.10",
-		"minecraft": ">=26.1 <26.2-",
+		"minecraft": ">=26.2 <26.3-",
 		"java": ">=25",
 		"fabric-api": "*"
 	}
