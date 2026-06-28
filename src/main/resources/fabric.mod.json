@@ -1,34 +1,32 @@
 {
-	"schemaVersion": 1,
-	"id": "reroll-trades",
-	"version": "${version}",
-	"name": "Reroll Trades [MC 26.2]",
-	"description": "Reroll villager trades with a button or keybind (R). Free rerolls - no emerald cost! (Supports MC 26.2)",
-	"authors": [
-		"misemise"
-	],
-	"contact": {
-		"sources": "https://github.com/misemise/reroll-trades"
-	},
-	"license": "MIT",
-	"icon": "assets/reroll-trades/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"net.misemise.RerollTrades"
-		],
-		"client": [
-			"net.misemise.RerollTradesClient"
-		]
-	},
-	"mixins": [
-		"reroll-trades.mixins.json",
-		"reroll-trades.client-mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": ">=26.2 <26.3-",
-		"java": ">=25",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "reroll-trades",
+  "version": "${version}",
+  "name": "Reroll Trades [MC 26.2]",
+  "description": "Reroll and undo villager trades for free, with server-side limits and configurable controls.",
+  "authors": ["misemise"],
+  "contact": {
+    "sources": "https://github.com/misemise/reroll-trades"
+  },
+  "license": "MIT",
+  "icon": "assets/reroll-trades/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["net.misemise.RerollTrades"],
+    "client": ["net.misemise.RerollTradesClient"],
+    "modmenu": ["net.misemise.RerollTradesModMenu"]
+  },
+  "mixins": [
+    "reroll-trades.mixins.json",
+    "reroll-trades.client-mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": ">=26.2 <26.3-",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": ">=20.0.0-beta.4"
+  }
 }
