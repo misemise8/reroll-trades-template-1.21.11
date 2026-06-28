@@ -1,26 +1,26 @@
 package net.misemise.platform;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.Villager;
+import net.misemise.network.RerollEffectPayload;
+import net.misemise.network.RerollStatePayload;
 
 import java.nio.file.Path;
+import java.util.UUID;
 
 public interface PlatformHooks {
 
     Path getConfigDir();
 
-    boolean matchesRerollKey(int keyCode, int scanCode);
+    void sendState(ServerPlayer player, RerollStatePayload payload);
 
-    void sendRerollRequest();
+    void sendEffect(ServerPlayer player, RerollEffectPayload payload);
 
-    void sendParticle(ServerPlayer player, BlockPos pos);
+    boolean isGloballyLocked(Villager villager);
 
-    void sendLocked(ServerPlayer player);
+    void markGloballyLocked(Villager villager);
 
-    void sendReject(ServerPlayer player);
+    int getRerollCount(Villager villager, UUID playerId);
 
-    boolean isRerollLocked(Villager villager, ServerPlayer player);
-
-    void lockReroll(Villager villager, ServerPlayer player);
+    void setRerollCount(Villager villager, UUID playerId, int count);
 }
