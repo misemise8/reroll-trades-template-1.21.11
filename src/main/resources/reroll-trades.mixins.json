@@ -1,16 +1,17 @@
-﻿{
-	"required": true,
-	"package": "net.misemise.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"MerchantScreenHandlerAccessor",
-		"VillagerLastCustomerAccessor",
-		"VillagerEntityTradeMixin"
-	],
-	"injectors": {
-		"defaultRequire": 0
-	},
-	"overwrites": {
-		"requireAnnotations": true
-	}
+{
+  "required": true,
+  "package": "net.misemise.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractVillagerTradeMixin",
+    "MerchantMenuLifecycleMixin",
+    "MerchantScreenHandlerAccessor",
+    "VillagerEntityAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
 }
