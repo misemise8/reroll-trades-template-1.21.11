@@ -1,0 +1,7 @@
+{
+  "requireSneaking": false,
+  "cooldownTicks": 5,
+  "maxRerollsPerPlayerPerVillager": 0,
+  "enableUndo": true,
+  "undoTimeoutSeconds": 30
+}

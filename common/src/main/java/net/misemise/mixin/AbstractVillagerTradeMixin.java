@@ -4,7 +4,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.misemise.platform.PlatformServices;
+import net.misemise.reroll.RerollController;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,7 +23,6 @@ public class AbstractVillagerTradeMixin {
             return;
         }
 
-        PlatformServices.lockReroll(villager, serverPlayer);
-        PlatformServices.sendLocked(serverPlayer);
+        RerollController.onTrade(serverPlayer, villager);
     }
 }
