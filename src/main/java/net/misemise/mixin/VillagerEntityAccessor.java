@@ -9,5 +9,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface VillagerEntityAccessor {
 
     @Invoker("updateTrades")
-    void invokeUpdateTrades(ServerLevel level);
+    void rerollTrades$updateTrades(ServerLevel level);
 }
