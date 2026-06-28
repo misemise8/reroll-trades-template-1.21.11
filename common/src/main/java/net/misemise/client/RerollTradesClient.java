@@ -3,39 +3,51 @@ package net.misemise.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.misemise.IRerollLockable;
-import net.misemise.config.RerollConfig;
+import net.misemise.config.RerollClientConfig;
+import net.misemise.network.RerollEffectPayload;
+import net.misemise.network.RerollStatePayload;
 
 public final class RerollTradesClient {
 
     private RerollTradesClient() {
     }
 
-    public static void handleLocked() {
+    public static void handleState(RerollStatePayload state) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen instanceof IRerollLockable lockable) {
-            lockable.rerollTrades$lock();
+        if (minecraft.screen instanceof RerollScreenAccess screen) {
+            screen.rerollTrades$applyState(state);
         }
     }
 
-    public static void handleRejected() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen instanceof IRerollLockable lockable) {
-            lockable.rerollTrades$unlock();
-        }
-    }
-
-    public static void handleParticle(BlockPos pos) {
-        if (!RerollConfig.get().enableParticles) {
-            return;
-        }
-
+    public static void handleEffect(RerollEffectPayload effect) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             return;
         }
 
+        RerollClientConfig config = RerollClientConfig.get();
+        if (config.enableParticles) {
+            spawnParticles(minecraft, effect.pos());
+        }
+        if (config.enableSounds) {
+            BlockPos pos = effect.pos();
+            minecraft.level.playLocalSound(
+                    pos.getX() + 0.5D,
+                    pos.getY() + 1.0D,
+                    pos.getZ() + 0.5D,
+                    SoundEvents.VILLAGER_YES,
+                    SoundSource.NEUTRAL,
+                    0.8F,
+                    effect.undo() ? 0.8F : 1.1F,
+                    false
+            );
+        }
+    }
+
+    private static void spawnParticles(Minecraft minecraft, BlockPos pos) {
         RandomSource random = RandomSource.create();
         double centerX = pos.getX() + 0.5D;
         double centerY = pos.getY() + 1.0D;
