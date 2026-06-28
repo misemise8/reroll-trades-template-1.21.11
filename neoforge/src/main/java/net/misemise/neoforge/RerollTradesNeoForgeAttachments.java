@@ -1,30 +1,47 @@
 package net.misemise.neoforge;
 
 import com.mojang.serialization.Codec;
-import java.util.function.Supplier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 final class RerollTradesNeoForgeAttachments {
 
-    private static final Codec<HashSet<UUID>> LOCKED_PLAYERS_CODEC = Codec
-            .list(Codec.STRING.xmap(UUID::fromString, UUID::toString))
+    private static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
+    private static final Codec<Map<UUID, Integer>> REROLL_COUNTS_CODEC =
+            Codec.unboundedMap(UUID_CODEC, Codec.INT);
+    private static final Codec<HashSet<UUID>> LEGACY_LOCKED_PLAYERS_CODEC = Codec
+            .list(UUID_CODEC)
             .xmap(HashSet::new, ArrayList::new);
 
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, RerollTradesNeoForge.NEOFORGE_MOD_ID);
 
-    private static final DeferredHolder<AttachmentType<?>, AttachmentType<HashSet<UUID>>> LOCKED_PLAYERS =
+    private static final DeferredHolder<AttachmentType<?>, AttachmentType<Map<UUID, Integer>>> REROLL_COUNTS =
+            ATTACHMENT_TYPES.register("reroll_counts",
+                    () -> AttachmentType.builder((Supplier<Map<UUID, Integer>>) HashMap::new)
+                            .serialize(REROLL_COUNTS_CODEC)
+                            .build());
+
+    private static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> TRADED =
+            ATTACHMENT_TYPES.register("traded",
+                    () -> AttachmentType.builder(() -> false)
+                            .serialize(Codec.BOOL)
+                            .build());
+
+    private static final DeferredHolder<AttachmentType<?>, AttachmentType<HashSet<UUID>>> LEGACY_LOCKED_PLAYERS =
             ATTACHMENT_TYPES.register("locked_players",
                     () -> AttachmentType.builder((Supplier<HashSet<UUID>>) HashSet::new)
-                            .serialize(LOCKED_PLAYERS_CODEC)
+                            .serialize(LEGACY_LOCKED_PLAYERS_CODEC)
                             .build());
 
     private RerollTradesNeoForgeAttachments() {
@@ -34,7 +51,15 @@ final class RerollTradesNeoForgeAttachments {
         ATTACHMENT_TYPES.register(modEventBus);
     }
 
-    static AttachmentType<HashSet<UUID>> lockedPlayers() {
-        return LOCKED_PLAYERS.get();
+    static AttachmentType<Map<UUID, Integer>> rerollCounts() {
+        return REROLL_COUNTS.get();
+    }
+
+    static AttachmentType<Boolean> traded() {
+        return TRADED.get();
+    }
+
+    static AttachmentType<HashSet<UUID>> legacyLockedPlayers() {
+        return LEGACY_LOCKED_PLAYERS.get();
     }
 }
