@@ -1,12 +1,13 @@
 package net.misemise.platform;
 
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.villager.Villager;
+import net.misemise.network.RerollEffectPayload;
+import net.misemise.network.RerollStatePayload;
 
 import java.nio.file.Path;
 import java.util.ServiceLoader;
+import java.util.UUID;
 
 public final class PlatformServices {
 
@@ -21,31 +22,27 @@ public final class PlatformServices {
         return PLATFORM.getConfigDir();
     }
 
-    public static boolean matchesRerollKey(KeyEvent event) {
-        return PLATFORM.matchesRerollKey(event);
+    public static void sendState(ServerPlayer player, RerollStatePayload payload) {
+        PLATFORM.sendState(player, payload);
     }
 
-    public static void sendRerollRequest() {
-        PLATFORM.sendRerollRequest();
+    public static void sendEffect(ServerPlayer player, RerollEffectPayload payload) {
+        PLATFORM.sendEffect(player, payload);
     }
 
-    public static void sendParticle(ServerPlayer player, BlockPos pos) {
-        PLATFORM.sendParticle(player, pos);
+    public static boolean isGloballyLocked(Villager villager) {
+        return PLATFORM.isGloballyLocked(villager);
     }
 
-    public static void sendLocked(ServerPlayer player) {
-        PLATFORM.sendLocked(player);
+    public static void markGloballyLocked(Villager villager) {
+        PLATFORM.markGloballyLocked(villager);
     }
 
-    public static void sendReject(ServerPlayer player) {
-        PLATFORM.sendReject(player);
+    public static int getRerollCount(Villager villager, UUID playerId) {
+        return PLATFORM.getRerollCount(villager, playerId);
     }
 
-    public static boolean isRerollLocked(Villager villager, ServerPlayer player) {
-        return PLATFORM.isRerollLocked(villager, player);
-    }
-
-    public static void lockReroll(Villager villager, ServerPlayer player) {
-        PLATFORM.lockReroll(villager, player);
+    public static void setRerollCount(Villager villager, UUID playerId, int count) {
+        PLATFORM.setRerollCount(villager, playerId, count);
     }
 }

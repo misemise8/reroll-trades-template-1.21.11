@@ -9,7 +9,7 @@ version = "${version}"
 displayName = "Reroll Trades"
 authors = "misemise"
 description = '''
-Reroll villager trades with a button or keybind (R). Free rerolls, no emerald cost!
+Reroll and undo villager trades for free, with server-side limits and configurable controls.
 '''
 logoFile = "assets/reroll-trades/icon.png"
 
