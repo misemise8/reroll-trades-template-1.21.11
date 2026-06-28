@@ -1,21 +1,17 @@
 package net.misemise.neoforge;
 
-import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.villager.Villager;
-import net.misemise.network.RerollLockedPayload;
-import net.misemise.network.RerollParticlePayload;
-import net.misemise.network.RerollRejectPayload;
-import net.misemise.network.RerollTradesPayload;
+import net.misemise.network.RerollEffectPayload;
+import net.misemise.network.RerollStatePayload;
 import net.misemise.platform.PlatformHooks;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.UUID;
 
 public final class PlatformHooksImpl implements PlatformHooks {
@@ -26,43 +22,51 @@ public final class PlatformHooksImpl implements PlatformHooks {
     }
 
     @Override
-    public boolean matchesRerollKey(KeyEvent event) {
-        return RerollTradesNeoForgeClient.REROLL_KEY.isActiveAndMatches(InputConstants.getKey(event));
+    public void sendState(ServerPlayer player, RerollStatePayload payload) {
+        PacketDistributor.sendToPlayer(player, payload);
     }
 
     @Override
-    public void sendRerollRequest() {
-        ClientPacketDistributor.sendToServer(new RerollTradesPayload());
+    public void sendEffect(ServerPlayer player, RerollEffectPayload payload) {
+        PacketDistributor.sendToPlayer(player, payload);
     }
 
     @Override
-    public void sendParticle(ServerPlayer player, BlockPos pos) {
-        PacketDistributor.sendToPlayer(player, new RerollParticlePayload(pos));
-    }
+    public boolean isGloballyLocked(Villager villager) {
+        if (villager.getExistingData(RerollTradesNeoForgeAttachments.traded()).orElse(false)) {
+            return true;
+        }
 
-    @Override
-    public void sendLocked(ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, new RerollLockedPayload());
-    }
-
-    @Override
-    public void sendReject(ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, new RerollRejectPayload());
-    }
-
-    @Override
-    public boolean isRerollLocked(Villager villager, ServerPlayer player) {
-        return villager.getExistingData(RerollTradesNeoForgeAttachments.lockedPlayers())
-                .map(locked -> locked.contains(player.getUUID()))
+        boolean legacyLocked = villager.getExistingData(RerollTradesNeoForgeAttachments.legacyLockedPlayers())
+                .map(locked -> !locked.isEmpty())
                 .orElse(false);
+        boolean traded = legacyLocked
+                || villager.getOffers().stream().anyMatch(offer -> offer.getUses() > 0);
+        if (traded) {
+            markGloballyLocked(villager);
+        }
+        return traded;
     }
 
     @Override
-    public void lockReroll(Villager villager, ServerPlayer player) {
-        HashSet<UUID> locked = villager.getExistingData(RerollTradesNeoForgeAttachments.lockedPlayers())
-                .map(HashSet::new)
-                .orElseGet(HashSet::new);
-        locked.add(player.getUUID());
-        villager.setData(RerollTradesNeoForgeAttachments.lockedPlayers(), locked);
+    public void markGloballyLocked(Villager villager) {
+        villager.setData(RerollTradesNeoForgeAttachments.traded(), true);
+        villager.removeData(RerollTradesNeoForgeAttachments.legacyLockedPlayers());
+    }
+
+    @Override
+    public int getRerollCount(Villager villager, UUID playerId) {
+        return villager.getExistingData(RerollTradesNeoForgeAttachments.rerollCounts())
+                .map(counts -> counts.getOrDefault(playerId, 0))
+                .orElse(0);
+    }
+
+    @Override
+    public void setRerollCount(Villager villager, UUID playerId, int count) {
+        Map<UUID, Integer> counts = villager.getExistingData(RerollTradesNeoForgeAttachments.rerollCounts())
+                .map(HashMap::new)
+                .orElseGet(HashMap::new);
+        counts.put(playerId, Math.max(0, count));
+        villager.setData(RerollTradesNeoForgeAttachments.rerollCounts(), counts);
     }
 }

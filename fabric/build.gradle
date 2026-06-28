@@ -1,5 +1,9 @@
 apply plugin: "net.fabricmc.fabric-loom"
 
+repositories {
+    maven { url = "https://maven.terraformersmc.com/releases/" }
+}
+
 sourceSets {
     main {
         java.srcDir("../common/src/main/java")
@@ -11,6 +15,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    compileOnly "com.terraformersmc:modmenu:18.0.0-beta.1"
 }
 
 processResources {
