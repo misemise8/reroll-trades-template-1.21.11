@@ -3,9 +3,8 @@ package net.misemise.neoforge;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.misemise.client.RerollTradesClient;
-import net.misemise.network.RerollLockedPayload;
-import net.misemise.network.RerollParticlePayload;
-import net.misemise.network.RerollRejectPayload;
+import net.misemise.network.RerollEffectPayload;
+import net.misemise.network.RerollStatePayload;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
@@ -30,8 +29,7 @@ public final class RerollTradesNeoForgeClient {
     }
 
     static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
-        event.register(RerollParticlePayload.TYPE, (payload, context) -> RerollTradesClient.handleParticle(payload.pos()));
-        event.register(RerollLockedPayload.TYPE, (payload, context) -> RerollTradesClient.handleLocked());
-        event.register(RerollRejectPayload.TYPE, (payload, context) -> RerollTradesClient.handleRejected());
+        event.register(RerollStatePayload.TYPE, (payload, context) -> RerollTradesClient.handleState(payload));
+        event.register(RerollEffectPayload.TYPE, (payload, context) -> RerollTradesClient.handleEffect(payload));
     }
 }

@@ -6,9 +6,8 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.misemise.client.RerollTradesClient;
-import net.misemise.network.RerollLockedPayload;
-import net.misemise.network.RerollParticlePayload;
-import net.misemise.network.RerollRejectPayload;
+import net.misemise.network.RerollEffectPayload;
+import net.misemise.network.RerollStatePayload;
 import org.lwjgl.glfw.GLFW;
 
 public final class RerollTradesFabricClient implements ClientModInitializer {
@@ -24,14 +23,11 @@ public final class RerollTradesFabricClient implements ClientModInitializer {
                 KeyMapping.Category.GAMEPLAY
         ));
 
-        ClientPlayNetworking.registerGlobalReceiver(RerollParticlePayload.TYPE, (payload, context) ->
-                context.client().execute(() -> RerollTradesClient.handleParticle(payload.pos()))
+        ClientPlayNetworking.registerGlobalReceiver(RerollStatePayload.TYPE, (payload, context) ->
+                context.client().execute(() -> RerollTradesClient.handleState(payload))
         );
-        ClientPlayNetworking.registerGlobalReceiver(RerollLockedPayload.TYPE, (payload, context) ->
-                context.client().execute(RerollTradesClient::handleLocked)
-        );
-        ClientPlayNetworking.registerGlobalReceiver(RerollRejectPayload.TYPE, (payload, context) ->
-                context.client().execute(RerollTradesClient::handleRejected)
+        ClientPlayNetworking.registerGlobalReceiver(RerollEffectPayload.TYPE, (payload, context) ->
+                context.client().execute(() -> RerollTradesClient.handleEffect(payload))
         );
     }
 

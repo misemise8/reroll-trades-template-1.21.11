@@ -1,36 +1,50 @@
 package net.misemise.fabric;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.client.input.KeyEvent;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.misemise.RerollTrades;
-import net.misemise.network.RerollLockedPayload;
-import net.misemise.network.RerollParticlePayload;
-import net.misemise.network.RerollRejectPayload;
-import net.misemise.network.RerollTradesPayload;
+import net.misemise.network.RerollEffectPayload;
+import net.misemise.network.RerollStatePayload;
 import net.misemise.platform.PlatformHooks;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 public final class PlatformHooksImpl implements PlatformHooks {
 
-    private static final AttachmentType<HashSet<UUID>> REROLL_LOCKED = AttachmentRegistry.create(
+    private static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
+    private static final Codec<Map<UUID, Integer>> REROLL_COUNTS_CODEC =
+            Codec.unboundedMap(UUID_CODEC, Codec.INT);
+    private static final Codec<HashSet<UUID>> LEGACY_LOCKED_PLAYERS_CODEC = Codec
+            .list(UUID_CODEC)
+            .xmap(HashSet::new, ArrayList::new);
+
+    private static final AttachmentType<Boolean> TRADED = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "traded"),
+            builder -> builder.persistent(Codec.BOOL).initializer(() -> false)
+    );
+
+    private static final AttachmentType<HashSet<UUID>> LEGACY_LOCKED_PLAYERS = AttachmentRegistry.create(
             Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "locked_players"),
+            builder -> builder.persistent(LEGACY_LOCKED_PLAYERS_CODEC).initializer(HashSet::new)
+    );
+
+    private static final AttachmentType<Map<UUID, Integer>> REROLL_COUNTS = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "reroll_counts"),
             builder -> builder
-                    .persistent(Codec.list(Codec.STRING.xmap(UUID::fromString, UUID::toString))
-                            .xmap(HashSet::new, ArrayList::new))
-                    .initializer(HashSet::new));
+                    .persistent(REROLL_COUNTS_CODEC)
+                    .initializer(HashMap::new)
+    );
 
     @Override
     public Path getConfigDir() {
@@ -38,42 +52,47 @@ public final class PlatformHooksImpl implements PlatformHooks {
     }
 
     @Override
-    public boolean matchesRerollKey(KeyEvent event) {
-        return RerollTradesFabricClient.getRerollKey() != null
-                && RerollTradesFabricClient.getRerollKey().matches(event);
+    public void sendState(ServerPlayer player, RerollStatePayload payload) {
+        ServerPlayNetworking.send(player, payload);
     }
 
     @Override
-    public void sendRerollRequest() {
-        ClientPlayNetworking.send(new RerollTradesPayload());
+    public void sendEffect(ServerPlayer player, RerollEffectPayload payload) {
+        ServerPlayNetworking.send(player, payload);
     }
 
     @Override
-    public void sendParticle(ServerPlayer player, BlockPos pos) {
-        ServerPlayNetworking.send(player, new RerollParticlePayload(pos));
+    public boolean isGloballyLocked(Villager villager) {
+        if (Boolean.TRUE.equals(villager.getAttached(TRADED))) {
+            return true;
+        }
+
+        HashSet<UUID> legacyLocks = villager.getAttached(LEGACY_LOCKED_PLAYERS);
+        boolean traded = (legacyLocks != null && !legacyLocks.isEmpty())
+                || villager.getOffers().stream().anyMatch(offer -> offer.getUses() > 0);
+        if (traded) {
+            markGloballyLocked(villager);
+        }
+        return traded;
     }
 
     @Override
-    public void sendLocked(ServerPlayer player) {
-        ServerPlayNetworking.send(player, new RerollLockedPayload());
+    public void markGloballyLocked(Villager villager) {
+        villager.setAttached(TRADED, true);
+        villager.removeAttached(LEGACY_LOCKED_PLAYERS);
     }
 
     @Override
-    public void sendReject(ServerPlayer player) {
-        ServerPlayNetworking.send(player, new RerollRejectPayload());
+    public int getRerollCount(Villager villager, UUID playerId) {
+        Map<UUID, Integer> counts = villager.getAttached(REROLL_COUNTS);
+        return counts == null ? 0 : counts.getOrDefault(playerId, 0);
     }
 
     @Override
-    public boolean isRerollLocked(Villager villager, ServerPlayer player) {
-        HashSet<UUID> locked = villager.getAttached(REROLL_LOCKED);
-        return locked != null && locked.contains(player.getUUID());
-    }
-
-    @Override
-    public void lockReroll(Villager villager, ServerPlayer player) {
-        HashSet<UUID> locked = villager.getAttached(REROLL_LOCKED);
-        locked = locked == null ? new HashSet<>() : new HashSet<>(locked);
-        locked.add(player.getUUID());
-        villager.setAttached(REROLL_LOCKED, locked);
+    public void setRerollCount(Villager villager, UUID playerId, int count) {
+        Map<UUID, Integer> current = villager.getAttached(REROLL_COUNTS);
+        Map<UUID, Integer> counts = current == null ? new HashMap<>() : new HashMap<>(current);
+        counts.put(playerId, Math.max(0, count));
+        villager.setAttached(REROLL_COUNTS, counts);
     }
 }
