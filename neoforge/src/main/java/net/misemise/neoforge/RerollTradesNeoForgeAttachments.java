@@ -29,19 +29,31 @@ final class RerollTradesNeoForgeAttachments {
     private static final DeferredHolder<AttachmentType<?>, AttachmentType<Map<UUID, Integer>>> REROLL_COUNTS =
             ATTACHMENT_TYPES.register("reroll_counts",
                     () -> AttachmentType.builder((Supplier<Map<UUID, Integer>>) HashMap::new)
-                            .serialize(REROLL_COUNTS_CODEC)
+//#if MC >= 12108
+                            .serialize(REROLL_COUNTS_CODEC.fieldOf("reroll_counts"))
+//#else
+//$$                             .serialize(REROLL_COUNTS_CODEC)
+//#endif
                             .build());
 
     private static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> TRADED =
             ATTACHMENT_TYPES.register("traded",
                     () -> AttachmentType.builder(() -> false)
-                            .serialize(Codec.BOOL)
+//#if MC >= 12108
+                            .serialize(Codec.BOOL.fieldOf("traded"))
+//#else
+//$$                             .serialize(Codec.BOOL)
+//#endif
                             .build());
 
     private static final DeferredHolder<AttachmentType<?>, AttachmentType<HashSet<UUID>>> LEGACY_LOCKED_PLAYERS =
             ATTACHMENT_TYPES.register("locked_players",
                     () -> AttachmentType.builder((Supplier<HashSet<UUID>>) HashSet::new)
-                            .serialize(LEGACY_LOCKED_PLAYERS_CODEC)
+//#if MC >= 12108
+                            .serialize(LEGACY_LOCKED_PLAYERS_CODEC.fieldOf("locked_players"))
+//#else
+//$$                             .serialize(LEGACY_LOCKED_PLAYERS_CODEC)
+//#endif
                             .build());
 
     private RerollTradesNeoForgeAttachments() {

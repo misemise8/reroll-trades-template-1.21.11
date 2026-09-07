@@ -3,7 +3,10 @@ package net.misemise.neoforge;
 import net.misemise.RerollTrades;
 import net.misemise.command.RerollCommands;
 import net.misemise.client.RerollConfigScreen;
-import net.misemise.client.RerollTradesClient;
+//#if MC >= 12108
+//#else
+//$$ import net.misemise.client.RerollTradesClient;
+//#endif
 import net.misemise.network.RerollActionPayload;
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
@@ -18,6 +21,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+//#if MC >= 12108
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+//#endif
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -43,19 +49,28 @@ public final class RerollTradesNeoForge {
                 (payload, context) -> context.enqueueWork(() -> RerollController.handleAction(
                         (ServerPlayer) context.player(), payload.action(), payload.containerId()))
         );
-        registrar.playToClient(
-                RerollStatePayload.TYPE,
-                RerollStatePayload.STREAM_CODEC,
-                (payload, context) -> context.enqueueWork(() -> RerollTradesClient.handleState(payload))
-        );
-        registrar.playToClient(
-                RerollEffectPayload.TYPE,
-                RerollEffectPayload.STREAM_CODEC,
-                (payload, context) -> context.enqueueWork(() -> RerollTradesClient.handleEffect(payload))
-        );
+//#if MC >= 12108
+        registrar.playToClient(RerollStatePayload.TYPE, RerollStatePayload.STREAM_CODEC);
+        registrar.playToClient(RerollEffectPayload.TYPE, RerollEffectPayload.STREAM_CODEC);
+//#else
+//$$         registrar.playToClient(
+//$$                 RerollStatePayload.TYPE,
+//$$                 RerollStatePayload.STREAM_CODEC,
+//$$                 (payload, context) -> context.enqueueWork(() -> RerollTradesClient.handleState(payload))
+//$$         );
+//$$         registrar.playToClient(
+//$$                 RerollEffectPayload.TYPE,
+//$$                 RerollEffectPayload.STREAM_CODEC,
+//$$                 (payload, context) -> context.enqueueWork(() -> RerollTradesClient.handleEffect(payload))
+//$$         );
+//#endif
     }
 
-    @EventBusSubscriber(modid = NEOFORGE_MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+//#if MC >= 12104
+    @EventBusSubscriber(modid = NEOFORGE_MOD_ID, value = Dist.CLIENT)
+//#else
+//$$     @EventBusSubscriber(modid = NEOFORGE_MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+//#endif
     public static final class ClientModEvents {
 
         private ClientModEvents() {
@@ -65,6 +80,13 @@ public final class RerollTradesNeoForge {
         public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
             RerollTradesNeoForgeClient.registerKeyMappings(event);
         }
+
+//#if MC >= 12108
+        @SubscribeEvent
+        public static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
+            RerollTradesNeoForgeClient.registerClientPayloadHandlers(event);
+        }
+//#endif
 
         @SubscribeEvent
         public static void clientSetup(FMLClientSetupEvent event) {

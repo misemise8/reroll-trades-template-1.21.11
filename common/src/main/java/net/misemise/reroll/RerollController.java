@@ -3,8 +3,15 @@ package net.misemise.reroll;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
 import net.minecraft.server.MinecraftServer;
+//#if MC >= 12111
+import net.minecraft.server.level.ServerLevel;
+//#endif
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.npc.Villager;
+//#if MC >= 12111
+import net.minecraft.world.entity.npc.villager.Villager;
+//#else
+//$$ import net.minecraft.world.entity.npc.Villager;
+//#endif
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffers;
@@ -117,7 +124,11 @@ public final class RerollController {
         MerchantOffers previousOffers = villager.getOffers().copy();
         MerchantOffers workingOffers = villager.getOffers();
         workingOffers.clear();
-        ((VillagerEntityAccessor) villager).rerollTrades$updateTrades();
+//#if MC >= 12111
+        ((VillagerEntityAccessor) villager).rerollTrades$updateTrades((ServerLevel) villager.level());
+//#else
+//$$         ((VillagerEntityAccessor) villager).rerollTrades$updateTrades();
+//#endif
 
         if (villager.getOffers().isEmpty()) {
             villager.setOffers(previousOffers.copy());
@@ -264,7 +275,11 @@ public final class RerollController {
         player.connection.send(new ClientboundMerchantOffersPacket(
                 menu.containerId,
                 villager.getOffers(),
-                villager.getVillagerData().getLevel(),
+//#if MC >= 12105
+                villager.getVillagerData().level(),
+//#else
+//$$                 villager.getVillagerData().getLevel(),
+//#endif
                 villager.getVillagerXp(),
                 menu.showProgressBar(),
                 menu.canRestock()

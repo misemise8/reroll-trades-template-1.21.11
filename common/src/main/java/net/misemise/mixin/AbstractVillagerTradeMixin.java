@@ -1,8 +1,13 @@
 package net.misemise.mixin;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.npc.AbstractVillager;
-import net.minecraft.world.entity.npc.Villager;
+//#if MC >= 12111
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.npc.villager.Villager;
+//#else
+//$$ import net.minecraft.world.entity.npc.AbstractVillager;
+//$$ import net.minecraft.world.entity.npc.Villager;
+//#endif
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.misemise.reroll.RerollController;
 import org.spongepowered.asm.mixin.Mixin;

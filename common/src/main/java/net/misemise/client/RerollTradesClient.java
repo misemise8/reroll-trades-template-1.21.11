@@ -17,7 +17,11 @@ public final class RerollTradesClient {
 
     public static void handleState(RerollStatePayload state) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen instanceof RerollScreenAccess screen) {
+//#if MC >= 260200
+        if (minecraft.gui.screen() instanceof RerollScreenAccess screen) {
+//#else
+//$$         if (minecraft.screen instanceof RerollScreenAccess screen) {
+//#endif
             screen.rerollTrades$applyState(state);
         }
     }

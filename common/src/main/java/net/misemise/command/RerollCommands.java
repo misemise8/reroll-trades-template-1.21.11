@@ -15,7 +15,11 @@ public final class RerollCommands {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("rerolltrades")
-                .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
+//#if MC >= 12106
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+//#else
+//$$                 .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
+//#endif
                 .then(Commands.literal("reload").executes(context -> {
                     RerollServerConfig.reload();
                     RerollController.refreshOpenScreens(context.getSource().getServer());

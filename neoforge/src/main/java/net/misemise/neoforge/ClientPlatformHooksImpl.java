@@ -1,17 +1,29 @@
 package net.misemise.neoforge;
 
 import com.mojang.blaze3d.platform.InputConstants;
+//#if MC >= 12110
+import net.minecraft.client.input.KeyEvent;
+//#endif
 import net.minecraft.network.chat.Component;
 import net.misemise.network.RerollActionPayload;
 import net.misemise.platform.ClientPlatformHooks;
 import net.misemise.reroll.RerollAction;
-import net.neoforged.neoforge.network.PacketDistributor;
+//#if MC >= 12108
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+//#else
+//$$ import net.neoforged.neoforge.network.PacketDistributor;
+//#endif
 
 public final class ClientPlatformHooksImpl implements ClientPlatformHooks {
 
     @Override
-    public boolean matchesRerollKey(int keyCode, int scanCode) {
-        return RerollTradesNeoForgeClient.REROLL_KEY.isActiveAndMatches(InputConstants.getKey(keyCode, scanCode));
+//#if MC >= 12110
+    public boolean matchesRerollKey(KeyEvent event) {
+        return RerollTradesNeoForgeClient.REROLL_KEY.isActiveAndMatches(InputConstants.getKey(event));
+//#else
+//$$     public boolean matchesRerollKey(int keyCode, int scanCode) {
+//$$         return RerollTradesNeoForgeClient.REROLL_KEY.isActiveAndMatches(InputConstants.getKey(keyCode, scanCode));
+//#endif
     }
 
     @Override
@@ -21,6 +33,10 @@ public final class ClientPlatformHooksImpl implements ClientPlatformHooks {
 
     @Override
     public void sendAction(RerollAction action, int containerId) {
-        PacketDistributor.sendToServer(new RerollActionPayload(action, containerId));
+//#if MC >= 12108
+        ClientPacketDistributor.sendToServer(new RerollActionPayload(action, containerId));
+//#else
+//$$         PacketDistributor.sendToServer(new RerollActionPayload(action, containerId));
+//#endif
     }
 }

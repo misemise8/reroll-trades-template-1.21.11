@@ -52,7 +52,11 @@ public final class RerollConfigScreen extends Screen {
     public void onClose() {
         RerollClientConfig.saveCurrent();
         if (this.minecraft != null) {
-            this.minecraft.setScreen(this.parent);
+//#if MC >= 12109
+            this.minecraft.setScreenAndShow(this.parent);
+//#else
+//$$             this.minecraft.setScreen(this.parent);
+//#endif
         }
     }
 

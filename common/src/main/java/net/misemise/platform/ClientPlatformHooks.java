@@ -1,11 +1,18 @@
 package net.misemise.platform;
 
+//#if MC >= 12109
+import net.minecraft.client.input.KeyEvent;
+//#endif
 import net.minecraft.network.chat.Component;
 import net.misemise.reroll.RerollAction;
 
 public interface ClientPlatformHooks {
 
-    boolean matchesRerollKey(int keyCode, int scanCode);
+//#if MC >= 12109
+    boolean matchesRerollKey(KeyEvent event);
+//#else
+//$$     boolean matchesRerollKey(int keyCode, int scanCode);
+//#endif
 
     Component rerollKeyName();
 

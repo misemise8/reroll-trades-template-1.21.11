@@ -1,0 +1,96 @@
+import net.misemise.buildlogic.PreprocessSources
+
+def spec = targetSpec
+boolean fabric = spec.loader == 'fabric'
+boolean remapped = spec.mc < 260100
+apply plugin: fabric ? (remapped ? 'net.fabricmc.fabric-loom-remap' : 'net.fabricmc.fabric-loom') : 'net.neoforged.moddev'
+apply plugin: 'maven-publish'
+
+version = rootProject.mod_version
+group = rootProject.maven_group
+base.archivesName = "${rootProject.archives_base_name}-${spec.loader}-${version}-${spec.minecraft}"
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.toVersion(spec.java)
+    targetCompatibility = JavaVersion.toVersion(spec.java)
+}
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.neoforged.net/releases/' }
+    maven { url = 'https://maven.terraformersmc.com/releases/' }
+    mavenCentral()
+}
+def generatedSources = tasks.register('preprocessSources', PreprocessSources) {
+    sourceRoots.from(rootProject.file('common/src/main/java'), rootProject.file("${spec.loader}/src/main/java"))
+    minecraftVersion = spec.mc
+    outputDirectory = layout.buildDirectory.dir('generated/sources/main/java')
+}
+// Give IntelliJ the editable latest-version sources and their real Minecraft classpath.
+// Compilation always uses generated sources, including for the IDE target.
+def ideTarget = rootProject.findProperty('ide_target') ?: 'fabric-26.2'
+boolean editableIdeSources = project.name == ideTarget && spec.mc == 260200
+sourceSets.main.java.setSrcDirs(editableIdeSources
+        ? [rootProject.file('common/src/main/java'), rootProject.file("${spec.loader}/src/main/java")]
+        : [generatedSources.flatMap { it.outputDirectory }])
+sourceSets.main.resources.setSrcDirs([
+        rootProject.file('common/src/main/resources'), rootProject.file("${spec.loader}/src/main/resources")
+])
+tasks.named('compileJava', JavaCompile) {
+    dependsOn generatedSources
+    setSource(generatedSources.flatMap { it.outputDirectory })
+}
+tasks.named('sourcesJar') { dependsOn generatedSources }
+
+if (fabric) {
+    dependencies {
+        minecraft "com.mojang:minecraft:${spec.minecraft}"
+        if (remapped) {
+            mappings loom.officialMojangMappings()
+            modImplementation "net.fabricmc:fabric-loader:${spec.loaderVersion}"
+            modImplementation "net.fabricmc.fabric-api:fabric-api:${spec.api}"
+            modCompileOnly "com.terraformersmc:modmenu:${spec.modmenu}"
+        } else {
+            implementation "net.fabricmc:fabric-loader:${spec.loaderVersion}"
+            implementation "net.fabricmc.fabric-api:fabric-api:${spec.api}"
+            compileOnly "com.terraformersmc:modmenu:${spec.modmenu}"
+        }
+    }
+} else {
+    neoForge {
+        version = spec.neoForge
+        runs {
+            client { client() }
+            server { server(); programArgument '--nogui' }
+        }
+        mods { reroll_trades { sourceSet(sourceSets.main) } }
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = spec.java
+}
+tasks.withType(AbstractArchiveTask).configureEach {
+    archiveVersion = ''
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+tasks.named('jar') {
+    from(rootProject.file('LICENSE')) { rename { 'LICENSE_reroll-trades' } }
+}
+def substitutions = [version: project.version, java_version: spec.java,
+        minecraft_version: spec.minecraft, minecraft_range: spec.minecraftRange,
+        minecraft_version_range: spec.minecraftRange, loader_version_range: '[4,)',
+        neoforge_version: spec.neoForge ?: '', loader_version: spec.loaderVersion ?: '',
+        modmenu_version: spec.modmenu ?: '']
+tasks.named('processResources') {
+    inputs.properties substitutions
+    filesMatching(['fabric.mod.json', '*mixins.json', 'META-INF/neoforge.mods.toml']) { expand substitutions }
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = "${rootProject.archives_base_name}-${spec.loader}-${spec.minecraft}"
+            from components.java
+        }
+    }
+}

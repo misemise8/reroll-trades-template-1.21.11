@@ -3,7 +3,11 @@ package net.misemise.network;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+//#if MC >= 12111
+import net.minecraft.resources.Identifier;
+//#else
+//$$ import net.minecraft.resources.ResourceLocation;
+//#endif
 import net.misemise.RerollTrades;
 import net.misemise.reroll.RerollBlockReason;
 
@@ -19,7 +23,11 @@ public record RerollStatePayload(
 ) implements CustomPacketPayload {
 
     public static final Type<RerollStatePayload> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "screen_state"));
+//#if MC >= 12111
+            new Type<>(Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "screen_state"));
+//#else
+//$$             new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "screen_state"));
+//#endif
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RerollStatePayload> STREAM_CODEC = StreamCodec.of(
             (buffer, payload) -> {

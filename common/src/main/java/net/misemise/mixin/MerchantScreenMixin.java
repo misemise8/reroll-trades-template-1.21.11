@@ -5,6 +5,9 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
+//#if MC >= 12109
+import net.minecraft.client.input.KeyEvent;
+//#endif
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
@@ -98,12 +101,21 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (rerollTrades$canRequestReroll() && ClientPlatformServices.matchesRerollKey(keyCode, scanCode)) {
+//#if MC >= 12109
+    public boolean keyPressed(KeyEvent event) {
+        if (rerollTrades$canRequestReroll() && ClientPlatformServices.matchesRerollKey(event)) {
+//#else
+//$$     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+//$$         if (rerollTrades$canRequestReroll() && ClientPlatformServices.matchesRerollKey(keyCode, scanCode)) {
+//#endif
             rerollTrades$send(RerollAction.REROLL);
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+//#if MC >= 12109
+        return super.keyPressed(event);
+//#else
+//$$         return super.keyPressed(keyCode, scanCode, modifiers);
+//#endif
     }
 
     @Unique

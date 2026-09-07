@@ -1,7 +1,11 @@
 package net.misemise.neoforge;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.npc.Villager;
+//#if MC >= 12111
+import net.minecraft.world.entity.npc.villager.Villager;
+//#else
+//$$ import net.minecraft.world.entity.npc.Villager;
+//#endif
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
 import net.misemise.platform.PlatformHooks;

@@ -4,13 +4,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+//#if MC >= 12111
+import net.minecraft.resources.Identifier;
+//#else
+//$$ import net.minecraft.resources.ResourceLocation;
+//#endif
 import net.misemise.RerollTrades;
 
 public record RerollEffectPayload(BlockPos pos, boolean undo) implements CustomPacketPayload {
 
     public static final Type<RerollEffectPayload> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "effect"));
+//#if MC >= 12111
+            new Type<>(Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "effect"));
+//#else
+//$$             new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "effect"));
+//#endif
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RerollEffectPayload> STREAM_CODEC = StreamCodec.of(
             (buffer, payload) -> {

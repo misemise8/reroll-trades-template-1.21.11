@@ -1,12 +1,22 @@
+import groovy.json.JsonSlurper
 pluginManagement {
     repositories {
-        maven { url = "https://maven.fabricmc.net/" }
-        maven { url = "https://maven.neoforged.net/releases/" }
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.neoforged.net/releases/' }
         gradlePluginPortal()
         mavenCentral()
     }
 }
-
-rootProject.name = "reroll-trades"
-
-include("neoforge")
+rootProject.name = 'reroll-trades'
+def targets = new JsonSlurper().parse(file('versions/targets.json'))
+def selection = providers.gradleProperty('target').getOrElse('all')
+def selected = selection == 'all' ? targets : targets.findAll { it.id in selection.split(',') }
+if (selected.empty || (selection != 'all' && selected.size() != selection.split(',').toList().unique().size())) {
+    throw new GradleException("Unknown target '${selection}'. Choose: ${targets*.id.join(', ')}")
+}
+gradle.ext.selectedTargets = selected
+selected.each { target ->
+    include(":${target.id}")
+    project(":${target.id}").projectDir = file("versions/${target.id}")
+    project(":${target.id}").buildFileName = '../../gradle/target.gradle'
+}

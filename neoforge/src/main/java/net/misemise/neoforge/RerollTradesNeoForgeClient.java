@@ -2,8 +2,16 @@ package net.misemise.neoforge;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+//#if MC >= 12108
+import net.misemise.client.RerollTradesClient;
+import net.misemise.network.RerollEffectPayload;
+import net.misemise.network.RerollStatePayload;
+//#endif
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+//#if MC >= 12108
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+//#endif
 import org.lwjgl.glfw.GLFW;
 
 public final class RerollTradesNeoForgeClient {
@@ -13,7 +21,11 @@ public final class RerollTradesNeoForgeClient {
             KeyConflictContext.GUI,
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_R,
-            "key.categories.gameplay"
+//#if MC >= 12110
+            KeyMapping.Category.GAMEPLAY
+//#else
+//$$             "key.categories.gameplay"
+//#endif
     );
 
     private RerollTradesNeoForgeClient() {
@@ -24,4 +36,10 @@ public final class RerollTradesNeoForgeClient {
         event.register(REROLL_KEY);
     }
 
+//#if MC >= 12108
+    static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
+        event.register(RerollStatePayload.TYPE, (payload, context) -> RerollTradesClient.handleState(payload));
+        event.register(RerollEffectPayload.TYPE, (payload, context) -> RerollTradesClient.handleEffect(payload));
+    }
+//#endif
 }
