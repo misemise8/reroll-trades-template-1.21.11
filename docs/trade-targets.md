@@ -6,10 +6,12 @@
 2. Pick an item icon from the centered panel. The catalog follows the villager's current profession and level. Hover an icon for its localized name and trade direction.
 3. Choose a type or enchantment, then a level when necessary. Choices with only one option skip directly to the next relevant screen. Enter an optional minimum and maximum, such as a blank minimum and **10** maximum.
 4. Save the target. An existing matching offer locks immediately; otherwise it waits for a matching manual reroll.
-5. Continue rerolling the other slots. The book-and-quill icon opens **Saved targets**, showing each target's waiting state or its locked slot number.
+5. Continue rerolling the other slots. The **Saved (count)** tab opens a list showing each target's name, inclusive price bounds and waiting state or locked slot number. This tab is available from every selection stage.
 6. Select a saved target to inspect its condition and remove it to release its slot. Saving the same target again updates its price condition and reevaluates its lock.
 
-UI labels follow the Minecraft language setting (Japanese and English translations; English fallback for other languages). Item and enchantment names use the game's translations, including registry-provided names. Search and pagination handle longer lists.
+UI labels follow the Minecraft language setting (Japanese and English translations; English fallback for other languages). Item and enchantment names use the game's translations, including registry-provided names. Long names wrap onto two lines, with ASCII dots for overflow. The normal grid shows 12 entries per page (9 in a narrower viewport). Search, arrow buttons and mouse-wheel paging handle longer lists; fractional trackpad scrolling accumulates into page steps. Wheel paging is active only inside the selection panel.
+
+The textured panel and the visible grid contents are centered again when the window or GUI scale changes. The background texture and generation prompts are documented in [ui-texture.md](ui-texture.md).
 
 The displayed price range is the normal generated base price, before player discounts and demand.
 Both bounds are inclusive; blank minimum means 1 and blank maximum means 999. Values outside 1–999 or an inverted range cannot be saved and are rejected by the server.

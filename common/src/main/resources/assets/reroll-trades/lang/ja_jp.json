@@ -54,7 +54,7 @@
   "target.reroll-trades.step.price": "価格条件",
   "target.reroll-trades.step.rules": "保存した条件",
   "target.reroll-trades.step.detail": "保存した条件",
-  "target.reroll-trades.saved_count": "保存した条件（%s）",
+  "target.reroll-trades.saved_count": "保存済み (%s)",
   "target.reroll-trades.any_enchantment": "指定なし",
   "target.reroll-trades.buying": "村人が買い取るアイテム",
   "target.reroll-trades.selling": "村人が販売するアイテム",
@@ -67,5 +67,7 @@
   "target.reroll-trades.quantity_unit": "村人に渡すアイテムの個数",
   "target.reroll-trades.emerald_unit": "エメラルドの個数",
   "target.reroll-trades.quantity_range": "通常の必要数：%s〜%s個",
-  "target.reroll-trades.buy_range_hint": "値引きや需要が反映される前の必要数です。受け取るエメラルドの数は交易によって異なります。"
+  "target.reroll-trades.buy_range_hint": "値引きや需要が反映される前の必要数です。受け取るエメラルドの数は交易によって異なります。",
+  "target.reroll-trades.saved_price": "%s〜%sエメラルド",
+  "target.reroll-trades.saved_quantity": "%s〜%s個"
 }

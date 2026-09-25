@@ -36,9 +36,12 @@ The 26.2 Fabric development client renders the actual centered icon editor at 12
 
 - Item → enchantment/type → level → price, including direct item-to-price and single-level skips.
 - Upper-bound input, blank bounds, inverted bounds, zero, and nonnumeric rejection.
-- Saved targets and their detail/removal page.
+- Saved targets and their detail/removal page. Three saved rows expose names, price bounds and locked/waiting states.
 - Pagination, empty search, localized enchantment search, and back navigation.
-- A 320×240 GUI viewport (the 224×196 panel fits without clipping).
+- Wheel paging, fractional trackpad input, first/last-page clamping and no paging outside the panel.
+- Long-name truncation remaining valid ASCII; names wrapping onto two lines without corrupt suffixes.
+- Centering and widget bounds at 640×360, 320×240 and 292×237 GUI viewports. The panel is at most 320×232 and adapts to smaller windows.
+- Twelve entries per page normally and nine at the narrow viewport.
 
 Screenshots of the eight stages are stored in `versions/fabric-26.2/build/client-smoke-run/screenshots`; `client-smoke-result-ja_jp.json` and `client-smoke-result-en_us.json` record successful completion. The Gradle task fails if the corresponding report is absent or failed.
 The fixture uses fixed data outside a world, with minimal bound item components for rendering. It is not an end-to-end multiplayer test, and it does not submit mutations through a real network connection. The server tests cover those controllers separately.
@@ -49,3 +52,7 @@ The screen wrapper handles background rendering on Minecraft 1.21.6 and newer; o
 
 Manual multiplayer interaction, all 17 client combinations, and third-party trade factories have not been verified.
 The supported automated commands and report paths are documented in [trade-targets.md](trade-targets.md).
+
+## Texture refinement
+
+The final GUI uses an opaque generated PNG, with low-contrast gray rendering and aligned item slots even when labels wrap. The texture is shared by every target and can be replaced by a resource pack. Only client UI and resource files changed in this refinement; the server-controller results above are from the preceding 3.2.0 run. Japanese and English client fixtures were rerun after the UI changes.

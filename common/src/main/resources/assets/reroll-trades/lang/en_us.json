@@ -54,7 +54,7 @@
   "target.reroll-trades.step.price": "Price condition",
   "target.reroll-trades.step.rules": "Saved targets",
   "target.reroll-trades.step.detail": "Saved target",
-  "target.reroll-trades.saved_count": "Saved targets (%s)",
+  "target.reroll-trades.saved_count": "Saved (%s)",
   "target.reroll-trades.any_enchantment": "Any enchantment",
   "target.reroll-trades.buying": "Villager buys this item",
   "target.reroll-trades.selling": "Villager sells this item",
@@ -67,5 +67,7 @@
   "target.reroll-trades.quantity_unit": "Number of items given to the villager",
   "target.reroll-trades.emerald_unit": "Number of emeralds",
   "target.reroll-trades.quantity_range": "Base quantity: %s–%s items",
-  "target.reroll-trades.buy_range_hint": "Required item count before discounts and demand. The emerald reward depends on the trade."
+  "target.reroll-trades.buy_range_hint": "Required item count before discounts and demand. The emerald reward depends on the trade.",
+  "target.reroll-trades.saved_price": "%s-%s emeralds",
+  "target.reroll-trades.saved_quantity": "%s-%s items"
 }
