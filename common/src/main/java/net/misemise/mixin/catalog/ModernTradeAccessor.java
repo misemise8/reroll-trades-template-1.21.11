@@ -11,6 +11,7 @@ import java.util.Optional;
 @Mixin(VillagerTrade.class)
 public interface ModernTradeAccessor {
     @Accessor("merchantPredicate") Optional<LootItemCondition> rerollTrades$predicate();
+    @Accessor("wants") net.minecraft.world.item.trading.TradeCost rerollTrades$wants();
     @Accessor("gives") ItemStackTemplate rerollTrades$gives();
 }
 //#endif

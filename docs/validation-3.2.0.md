@@ -7,19 +7,20 @@ Server integration checks passed on these six configurations:
 
 | Target | Assertions | Result |
 | --- | ---: | --- |
-| fabric-1.21 | 1360 | passed |
-| fabric-1.21.11 | 1358 | passed |
-| fabric-26.1 | 1368 | passed |
-| fabric-26.2 | 1370 | passed |
-| neoforge-1.21 | 1374 | passed |
-| neoforge-26.2 | 1348 | passed |
+| fabric-1.21 | 1913 | passed |
+| fabric-1.21.11 | 1913 | passed |
+| fabric-26.1 | 1913 | passed |
+| fabric-26.2 | 1913 | passed |
+| neoforge-1.21 | 1913 | passed |
+| neoforge-26.2 | 1913 | passed |
 
-Counts vary because the tests inspect actual randomly generated librarian offers. Each run samples 400 rerolls; it also runs deterministic price boundaries and controller assertions.
+Each run samples 400 librarian rerolls, inspecting both selling and buying offers, and also runs deterministic price boundaries and controller assertions. All six configurations passed 1,913 assertions after the icon GUI and price-bound update.
 
 Covered behavior:
 
 - Every vanilla profession's catalog at all five levels, including generated base prices.
-- Mending's 10–38 base range, an inclusive maximum of 10, exact enchantment levels, and exclusion of unavailable Sharpness V equipment.
+- Mending's 10–38 base range, inclusive lower/upper bounds, exact enchantment levels, and exclusion of unavailable Sharpness V equipment.
+- Paper buying targets with a base input quantity of 24, separate buying/selling matching, server rejection of inverted or nonpositive bounds, and migration of saved targets without the new fields.
 - Overlapping rules receiving distinct eligible slots; existing locks remaining stable.
 - Thirty partial rerolls and Undo operations preserving the locked slot and restoring the other slot.
 - A waiting target locking when generated, and Undo preserving the newly acquired lock.
@@ -31,9 +32,18 @@ The tests run inside Minecraft servers with a synthetic player and captured outb
 
 ## Client rendering
 
-The 26.2 Fabric development client rendered both editor tabs in Japanese at 1280×720 with GUI scale 2. Screenshots were inspected for readable labels, price ranges, price input, lock status and buttons.
-The fixture uses fixed data outside a world; it is not an end-to-end multiplayer test.
-The client check exposed a duplicate background blur crash on newer Minecraft versions. The editor now draws its own background only before 1.21.6, where the screen wrapper does not draw it automatically.
+The 26.2 Fabric development client renders the actual centered icon editor at 1280×720 with GUI scale 2. Japanese and English runs exercise:
+
+- Item → enchantment/type → level → price, including direct item-to-price and single-level skips.
+- Upper-bound input, blank bounds, inverted bounds, zero, and nonnumeric rejection.
+- Saved targets and their detail/removal page.
+- Pagination, empty search, localized enchantment search, and back navigation.
+- A 320×240 GUI viewport (the 224×196 panel fits without clipping).
+
+Screenshots of the eight stages are stored in `versions/fabric-26.2/build/client-smoke-run/screenshots`; `client-smoke-result-ja_jp.json` and `client-smoke-result-en_us.json` record successful completion. The Gradle task fails if the corresponding report is absent or failed.
+The fixture uses fixed data outside a world, with minimal bound item components for rendering. It is not an end-to-end multiplayer test, and it does not submit mutations through a real network connection. The server tests cover those controllers separately.
+
+The screen wrapper handles background rendering on Minecraft 1.21.6 and newer; older versions draw it explicitly. Rebuilding is deferred until screen initialization to prevent duplicate pre-initialization widgets.
 
 ## Remaining runtime scope
 

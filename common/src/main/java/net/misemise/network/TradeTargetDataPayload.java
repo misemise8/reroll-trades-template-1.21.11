@@ -21,9 +21,9 @@ public record TradeTargetDataPayload(int containerId, int revision, List<TradeCa
         List<TradeRule> rules, List<Integer> lockedSlots, boolean editable, String message) implements CustomPacketPayload {
     public static final Type<TradeTargetDataPayload> TYPE =
 //#if MC >= 12111
-            new Type<>(Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "target_data"));
+            new Type<>(Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "target_data_v2"));
 //#else
-//$$             new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "target_data"));
+//$$             new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "target_data_v2"));
 //#endif
     public static final StreamCodec<RegistryFriendlyByteBuf, TradeTargetDataPayload> STREAM_CODEC =
             StreamCodec.of(TradeTargetDataPayload::write, TradeTargetDataPayload::read);
@@ -38,6 +38,7 @@ public record TradeTargetDataPayload(int containerId, int revision, List<TradeCa
             TradeRule rule = data.rules.get(i);
             buffer.writeUtf(rule.id(), 64); ItemStack.STREAM_CODEC.encode(buffer, rule.template());
             buffer.writeUtf(rule.enchantment(), 256); buffer.writeVarInt(rule.level()); buffer.writeVarInt(rule.maxEmeralds());
+            buffer.writeVarInt(rule.minPrice()); buffer.writeBoolean(rule.buying());
             buffer.writeVarInt(data.lockedSlots.get(i));
         }
     }
@@ -53,7 +54,7 @@ public record TradeTargetDataPayload(int containerId, int revision, List<TradeCa
         List<TradeRule> rules = new ArrayList<>();
         List<Integer> slots = new ArrayList<>();
         for (int i = 0; i < ruleCount; i++) {
-            rules.add(new TradeRule(buffer.readUtf(64), ItemStack.STREAM_CODEC.decode(buffer), buffer.readUtf(256), buffer.readVarInt(), buffer.readVarInt()));
+            rules.add(new TradeRule(buffer.readUtf(64), ItemStack.STREAM_CODEC.decode(buffer), buffer.readUtf(256), buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(), buffer.readBoolean()));
             slots.add(buffer.readVarInt());
         }
         return new TradeTargetDataPayload(containerId, revision, List.copyOf(catalog), List.copyOf(rules), List.copyOf(slots), editable, message);

@@ -83,7 +83,7 @@ def substitutions = [version: project.version, java_version: spec.java,
         neoforge_version: spec.neoForge ?: '', loader_version: spec.loaderVersion ?: '',
         modmenu_version: spec.modmenu ?: '',
         catalog_mixins: spec.mc < 260100
-                ? ['Items', 'Exchange', 'Equipment', 'Dyed', 'Book', 'Map', 'Stew', 'Arrow', 'Typed'].collect { '"catalog.Legacy' + it + 'Accessor",' }.join('\n    ')
+                ? ['Items', 'Exchange', 'Equipment', 'Dyed', 'Book', 'Map', 'Stew', 'Arrow', 'Typed', 'Buy', 'TypedBuy'].collect { '"catalog.Legacy' + it + 'Accessor",' }.join('\n    ')
                 : '"catalog.ModernTradeAccessor",']
 tasks.named('processResources') {
     inputs.properties substitutions

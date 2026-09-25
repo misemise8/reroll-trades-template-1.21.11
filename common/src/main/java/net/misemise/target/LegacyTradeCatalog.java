@@ -47,6 +47,16 @@ final class LegacyTradeCatalog {
 //#endif
             var specific = typed.rerollTrades$trades().get(type);
             if (specific != null) describe(b, specific);
+        } else if (listing instanceof LegacyBuyAccessor buy) {
+            b.add(buy.rerollTrades$itemStack().itemStack(), "", 0, PriceRange.fixed(buy.rerollTrades$itemStack().count()), false, true);
+        } else if (listing instanceof LegacyTypedBuyAccessor buy) {
+//#if MC >= 12105
+            Object type = b.villager.getVillagerData().type().unwrapKey().orElse(null);
+//#else
+//$$             Object type = b.villager.getVillagerData().getType();
+//#endif
+            var item = buy.rerollTrades$trades().get(type);
+            if (item != null) b.add(new ItemStack(item), "", 0, PriceRange.fixed(buy.rerollTrades$cost()), false, true);
         } else if (listing instanceof LegacyItemsAccessor sale) {
             provided(b, sale.rerollTrades$itemStack(), PriceRange.fixed(sale.rerollTrades$emeraldCost()), sale.rerollTrades$enchantmentProvider());
         } else if (listing instanceof LegacyExchangeAccessor sale) {

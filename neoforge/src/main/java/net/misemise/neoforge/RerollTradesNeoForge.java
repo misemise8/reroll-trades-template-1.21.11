@@ -45,7 +45,7 @@ public final class RerollTradesNeoForge {
     }
 
     private void registerPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("3");
+        PayloadRegistrar registrar = event.registrar("4");
         registrar.playToServer(TradeTargetActionPayload.TYPE, TradeTargetActionPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> TradeTargetController.handle((ServerPlayer) context.player(), payload)));
         registrar.playToServer(

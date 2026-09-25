@@ -32,6 +32,7 @@ if (targetSpec.loader == 'fabric') loom {
             source sourceSets.smoke
             runDir 'build/client-smoke-run'
             vmArg '-DtradeTargetClientSmoke=true'
+            vmArg '-DtradeTargetLanguage=' + (rootProject.findProperty('tradeTargetLanguage') ?: 'ja_jp')
             programArgs '--width', '1280', '--height', '720'
         }
     }
@@ -74,6 +75,17 @@ tasks.named('runSmoke', JavaExec) {
         def report = new File(workingDir, 'trade-smoke-result.json')
         if (!report.isFile() || new groovy.json.JsonSlurper().parse(report).status != 'passed') {
             throw new GradleException("Trade target tests failed; inspect ${report}")
+        }
+    }
+}
+
+if (targetSpec.loader == 'fabric' && targetSpec.mc >= 260200) tasks.named('runClientSmoke', JavaExec) {
+    def language = rootProject.findProperty('tradeTargetLanguage') ?: 'ja_jp'
+    doFirst { new File(workingDir, "client-smoke-result-${language}.json").delete() }
+    doLast {
+        def report = new File(workingDir, "client-smoke-result-${language}.json")
+        if (!report.isFile() || new groovy.json.JsonSlurper().parse(report).status != 'passed') {
+            throw new GradleException("Trade target client tests failed; inspect ${workingDir}")
         }
     }
 }

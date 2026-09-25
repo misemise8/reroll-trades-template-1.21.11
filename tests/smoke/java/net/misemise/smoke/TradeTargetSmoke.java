@@ -129,12 +129,13 @@ public final class TradeTargetSmoke {
         var candidates = TradeCatalog.create(librarian);
         var mending = candidates.stream().filter(c -> c.enchantment().equals("minecraft:mending")).findFirst().orElseThrow();
         check(mending.price().equals(new PriceRange(10, 38)), "catalog mending 10-38");
+        check(candidates.stream().anyMatch(c -> c.buying() && c.template().is(Items.PAPER) && c.price().equals(PriceRange.fixed(24))), "paper buy target has correct quantity");
         int books = 0;
         for (int roll = 0; roll < 400; roll++) {
             generate(librarian);
             for (MerchantOffer offer : librarian.getOffers()) {
-                if (!offer.getCostA().is(Items.EMERALD)) continue;
-                var matches = candidates.stream().filter(c -> c.rule("test", 999).matchesResult(offer.getResult())).toList();
+                boolean buying = !offer.getCostA().is(Items.EMERALD);
+                var matches = candidates.stream().filter(c -> c.buying() == buying && c.rule("test", 999).matchesResult(buying ? offer.getCostA() : offer.getResult())).toList();
                 check(!matches.isEmpty(), "generated sale belongs to catalog");
                 int price = offer.getBaseCostA().getCount();
                 check(matches.stream().anyMatch(c -> c.price().min() <= price && c.price().max() >= price), "generated price inside catalog range");
@@ -175,7 +176,31 @@ public final class TradeTargetSmoke {
         check(decoded.sanitize("minecraft:farmer", offers).rules().isEmpty(), "profession change clears obsolete targets");
         offers.set(0, offer(1, new ItemStack(Items.APPLE)));
         check(decoded.sanitize(locked.profession(), offers).locks().size() == 1, "replaced offer clears stale lock");
-        phases.add("price/enchantment matching; overlapping targets; codec; changed offers");
+        TradeRule bounded = new TradeRule("bounded", rule.template(), rule.enchantment(), 1, 10, 5, false);
+        check(!bounded.matches(offer(4, book)) && bounded.matches(offer(5, book)) && bounded.matches(offer(10, book)), "inclusive minimum and maximum");
+        TradeRule paper = new TradeRule("paper", new ItemStack(Items.PAPER), "", 0, 24, 20, true);
+        MerchantOffer buy = new MerchantOffer(new ItemCost(Items.PAPER, 24), new ItemStack(Items.EMERALD), 12, 1, 0.05f);
+        check(paper.matches(buy), "buy rule matches input count");
+        check(!paper.matches(offer(24, new ItemStack(Items.PAPER))), "buy rule cannot match sale of same item");
+        buy.setSpecialPriceDiff(-5);
+        check(!paper.matches(buy), "buy rule rejects quantity below minimum");
+        var buyEncoded = TradeRule.CODEC.encodeStart(ops, paper).getOrThrow();
+        TradeRule buyDecoded = TradeRule.CODEC.parse(ops, buyEncoded).getOrThrow();
+        check(buyDecoded.buying() && buyDecoded.minPrice() == 20 && buyDecoded.maxEmeralds() == 24, "buy bounds persist");
+        var legacyEncoded = TradeRule.CODEC.encodeStart(ops, rule).getOrThrow().getAsJsonObject();
+        legacyEncoded.remove("min_price"); legacyEncoded.remove("buying");
+        TradeRule legacy = TradeRule.CODEC.parse(ops, legacyEncoded).getOrThrow();
+        check(legacy.minPrice() == 1 && !legacy.buying() && legacy.matches(offer(10, book)), "old saved target migration");
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), server.registryAccess());
+        var action = new TradeTargetActionPayload(7, 1, 3, 5, 24, 20);
+        TradeTargetActionPayload.STREAM_CODEC.encode(buffer, action);
+        check(action.equals(TradeTargetActionPayload.STREAM_CODEC.decode(buffer)), "price bounds action round trip");
+        var payload = new TradeTargetDataPayload(7, 3, List.of(new TradeCandidate(new ItemStack(Items.PAPER), "", 0, PriceRange.fixed(24), false, true)), List.of(paper), List.of(-1), true, "");
+        TradeTargetDataPayload.STREAM_CODEC.encode(buffer, payload);
+        var decodedPayload = TradeTargetDataPayload.STREAM_CODEC.decode(buffer);
+        check(decodedPayload.catalog().getFirst().buying() && decodedPayload.rules().getFirst().minPrice() == 20, "buy rules network round trip");
+        buffer.release();
+        phases.add("price/enchantment matching; buy quantities; lower bound; old-save migration; packet codecs; overlapping targets; changed offers");
     }
 
     private static void controller(MinecraftServer server) throws Exception {
@@ -203,6 +228,10 @@ public final class TradeTargetSmoke {
         int bread = -1;
         for (int i = 0; i < targets.catalog().size(); i++) if (targets.catalog().get(i).template().is(Items.BREAD)) { bread = i; break; }
         check(bread >= 0, "bread selection");
+        TradeTargetController.handle(player, new TradeTargetActionPayload(7, 1, targets.revision(), bread, 10, 11));
+        check(targets.rules().isEmpty() && targets.message().equals("target.reroll-trades.invalid_price"), "server rejects inverted bounds");
+        TradeTargetController.handle(player, new TradeTargetActionPayload(7, 1, targets.revision(), bread, 10, 0));
+        check(targets.rules().isEmpty(), "server rejects nonpositive minimum");
         TradeTargetController.handle(player, new TradeTargetActionPayload(7, 1, targets.revision(), bread, 10));
         check(targets.rules().size() == 1 && targets.lockedSlots().get(0) == 0, "saving target locks current matching slot");
         MerchantOffer fixed = villager.getOffers().get(0).copy();

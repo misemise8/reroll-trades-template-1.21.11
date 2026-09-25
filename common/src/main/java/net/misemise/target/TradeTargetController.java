@@ -68,8 +68,12 @@ public final class TradeTargetController {
         List<TradeLockData.LockedOffer> locks = new ArrayList<>(data.locks());
         if (action.action() == TradeTargetActionPayload.ADD) {
             if (action.selection() < 0 || action.selection() >= session.catalog.size()
-                    || action.maxEmeralds() < 1 || action.maxEmeralds() > 999) return;
-            TradeRule rule = session.catalog.get(action.selection()).rule(UUID.randomUUID().toString(), action.maxEmeralds());
+                    || action.maxEmeralds() < 1 || action.maxEmeralds() > 999
+                    || action.minPrice() < 1 || action.minPrice() > action.maxEmeralds()) {
+                send(player, menu, villager, session, "target.reroll-trades.invalid_price");
+                return;
+            }
+            TradeRule rule = session.catalog.get(action.selection()).rule(UUID.randomUUID().toString(), action.minPrice(), action.maxEmeralds());
             TradeRule previous = rules.stream().filter(existing -> existing.sameTarget(rule)).findFirst().orElse(null);
             if (previous == null && rules.size() >= TradeLockData.MAX_RULES) {
                 send(player, menu, villager, session, "target.reroll-trades.rule_limit");

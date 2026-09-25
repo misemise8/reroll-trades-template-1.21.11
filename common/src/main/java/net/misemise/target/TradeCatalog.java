@@ -38,9 +38,11 @@ public final class TradeCatalog {
         }
         // Custom factories can still be selected once they are visible. Their generated range is unknown.
         for (MerchantOffer offer : villager.getOffers()) {
-            if (!offer.getCostA().is(Items.EMERALD)) continue;
-            boolean known = builder.entries.stream().anyMatch(candidate -> candidate.rule("", 999).matchesResult(offer.getResult()));
-            if (!known) builder.add(offer.getResult().copy(), "", 0, PriceRange.UNKNOWN, false);
+            boolean buying = !offer.getCostA().is(Items.EMERALD) && offer.getResult().is(Items.EMERALD);
+            if (!buying && !offer.getCostA().is(Items.EMERALD)) continue;
+            ItemStack item = buying ? offer.getCostA() : offer.getResult();
+            boolean known = builder.entries.stream().anyMatch(candidate -> candidate.buying() == buying && candidate.rule("", 999).matchesResult(item));
+            if (!known) builder.add(item.copy(), "", 0, PriceRange.UNKNOWN, false, buying);
         }
         return List.copyOf(builder.entries);
     }
@@ -75,13 +77,17 @@ public final class TradeCatalog {
         public Builder(Villager villager) { this.villager = villager; }
 
         public void add(ItemStack template, String enchantment, int level, PriceRange price, boolean equipment) {
+            add(template, enchantment, level, price, equipment, false);
+        }
+
+        public void add(ItemStack template, String enchantment, int level, PriceRange price, boolean equipment, boolean buying) {
             if (template.isEmpty() || entries.size() >= MAX_ENTRIES) return;
             template = template.copyWithCount(1);
-            TradeCandidate candidate = new TradeCandidate(template, enchantment, level, price, equipment);
+            TradeCandidate candidate = new TradeCandidate(template, enchantment, level, price, equipment, buying);
             for (int i = 0; i < entries.size(); i++) {
                 TradeCandidate current = entries.get(i);
                 if (current.rule("", 999).sameTarget(candidate.rule("", 999))) {
-                    entries.set(i, new TradeCandidate(current.template(), enchantment, level, current.price().union(price), equipment));
+                    entries.set(i, new TradeCandidate(current.template(), enchantment, level, current.price().union(price), equipment, buying));
                     return;
                 }
             }

@@ -47,9 +47,16 @@ final class ModernTradeCatalog {
             if (encoded.isEmpty()) continue;
             JsonObject trade = encoded.get().getAsJsonObject();
             JsonObject wants = trade.getAsJsonObject("wants");
-            if (!wants.get("id").getAsString().equals("minecraft:emerald")) continue;
             ItemStack item = accessor.rerollTrades$gives().create();
-            PriceRange price = PriceRange.numberProvider(wants.get("count"));
+            PriceRange price = wants.has("count") ? PriceRange.numberProvider(wants.get("count")) : PriceRange.fixed(1);
+            if (!wants.get("id").getAsString().equals("minecraft:emerald")) {
+                if (item.is(Items.EMERALD)) {
+                    var cost = accessor.rerollTrades$wants();
+                    ItemStack input = new net.minecraft.world.item.trading.ItemCost(cost.item(), 1, cost.components()).itemStack();
+                    b.add(input, "", 0, price.clamp(input.getMaxStackSize()), false, true);
+                }
+                continue;
+            }
             JsonObject randomBook = null;
             JsonObject fixedBook = null;
             boolean equipment = false;

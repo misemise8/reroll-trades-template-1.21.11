@@ -2,7 +2,9 @@
 
 ## 3.2.0
 
-- Added a searchable target editor for all villager professions' sale items, enchantments and exact levels, with base price ranges and a maximum emerald price.
+- Added a compact centered icon picker for all villager professions: item → type/enchantment → level → price, skipping unnecessary steps. Labels follow Minecraft's language setting.
+- Show generated price ranges with optional inclusive minimum/maximum conditions. Include villager buying trades with clearly labeled required item quantities.
+- Keep saved targets, lock status and removal accessible through the book-and-quill icon.
 - Automatically lock one matching offer per target and preserve those slots across manual rerolls and Undo. Normal discounts and demand changes remain active.
 - Persist targets and locked slots on the villager, shared across players; allow removal from the editor and clear obsolete targets on profession changes.
 - Validate target selections, prices, menu ownership and revisions on the server. Stop rerolls when every slot is locked and retain the completed-trade restriction.

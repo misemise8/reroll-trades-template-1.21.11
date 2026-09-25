@@ -8,18 +8,25 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.trading.MerchantOffer;
 
-public record TradeRule(String id, ItemStack template, String enchantment, int level, int maxEmeralds) {
+public record TradeRule(String id, ItemStack template, String enchantment, int level, int maxEmeralds, int minPrice, boolean buying) {
+    public TradeRule(String id, ItemStack template, String enchantment, int level, int maxEmeralds) {
+        this(id, template, enchantment, level, maxEmeralds, 1, false);
+    }
     public static final Codec<TradeRule> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.fieldOf("id").forGetter(TradeRule::id),
             ItemStack.CODEC.fieldOf("item").forGetter(TradeRule::template),
             Codec.STRING.optionalFieldOf("enchantment", "").forGetter(TradeRule::enchantment),
             Codec.intRange(0, 255).optionalFieldOf("level", 0).forGetter(TradeRule::level),
-            Codec.intRange(1, 999).fieldOf("max_emeralds").forGetter(TradeRule::maxEmeralds)
+            Codec.intRange(1, 999).fieldOf("max_emeralds").forGetter(TradeRule::maxEmeralds),
+            Codec.intRange(1, 999).optionalFieldOf("min_price", 1).forGetter(TradeRule::minPrice),
+            Codec.BOOL.optionalFieldOf("buying", false).forGetter(TradeRule::buying)
     ).apply(i, TradeRule::new));
 
     public boolean matches(MerchantOffer offer) {
-        return offer.getCostA().is(Items.EMERALD) && offer.getCostA().getCount() <= maxEmeralds
-                && matchesResult(offer.getResult());
+        int price = offer.getCostA().getCount();
+        return price >= minPrice && price <= maxEmeralds && (buying
+                ? offer.getResult().is(Items.EMERALD) && matchesResult(offer.getCostA())
+                : offer.getCostA().is(Items.EMERALD) && matchesResult(offer.getResult()));
     }
 
     public boolean matchesResult(ItemStack result) {
@@ -36,7 +43,7 @@ public record TradeRule(String id, ItemStack template, String enchantment, int l
     }
 
     public boolean sameTarget(TradeRule other) {
-        return ItemStack.isSameItemSameComponents(template, other.template)
+        return buying == other.buying && ItemStack.isSameItemSameComponents(template, other.template)
                 && enchantment.equals(other.enchantment) && level == other.level;
     }
 }
