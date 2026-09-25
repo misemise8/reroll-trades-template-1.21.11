@@ -15,9 +15,9 @@ public record RerollActionPayload(RerollAction action, int containerId) implemen
 
     public static final Type<RerollActionPayload> TYPE =
 //#if MC >= 12111
-            new Type<>(Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "action"));
+            new Type<>(Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "action_v3"));
 //#else
-//$$             new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "action"));
+//$$             new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "action_v3"));
 //#endif
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RerollActionPayload> STREAM_CODEC = StreamCodec.of(

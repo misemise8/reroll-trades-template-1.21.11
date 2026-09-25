@@ -6,6 +6,7 @@ import net.minecraft.client.input.KeyEvent;
 //#endif
 import net.minecraft.network.chat.Component;
 import net.misemise.network.RerollActionPayload;
+import net.misemise.network.TradeTargetActionPayload;
 import net.misemise.platform.ClientPlatformHooks;
 import net.misemise.reroll.RerollAction;
 //#if MC >= 12108
@@ -15,6 +16,14 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 //#endif
 
 public final class ClientPlatformHooksImpl implements ClientPlatformHooks {
+
+    @Override public void sendTargetAction(TradeTargetActionPayload payload) {
+//#if MC >= 12108
+        ClientPacketDistributor.sendToServer(payload);
+//#else
+//$$         PacketDistributor.sendToServer(payload);
+//#endif
+    }
 
     @Override
 //#if MC >= 12110

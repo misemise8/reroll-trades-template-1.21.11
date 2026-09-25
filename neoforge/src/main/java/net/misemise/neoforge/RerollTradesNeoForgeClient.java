@@ -6,6 +6,7 @@ import net.minecraft.client.KeyMapping;
 import net.misemise.client.RerollTradesClient;
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
+import net.misemise.network.TradeTargetDataPayload;
 //#endif
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -39,6 +40,7 @@ public final class RerollTradesNeoForgeClient {
 //#if MC >= 12108
     static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
         event.register(RerollStatePayload.TYPE, (payload, context) -> RerollTradesClient.handleState(payload));
+        event.register(TradeTargetDataPayload.TYPE, (payload, context) -> RerollTradesClient.handleTargets(payload));
         event.register(RerollEffectPayload.TYPE, (payload, context) -> RerollTradesClient.handleEffect(payload));
     }
 //#endif

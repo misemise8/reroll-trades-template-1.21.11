@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "trade-target-smoke",
+  "version": "1.0.0",
+  "name": "Trade Target Server Tests",
+  "environment": "server",
+  "entrypoints": { "main": ["net.misemise.smoke.FabricSmoke"] },
+  "depends": { "fabricloader": "*", "reroll-trades": "*" }
+}

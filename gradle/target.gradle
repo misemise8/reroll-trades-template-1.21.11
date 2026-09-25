@@ -81,7 +81,10 @@ def substitutions = [version: project.version, java_version: spec.java,
         minecraft_version: spec.minecraft, minecraft_range: spec.minecraftRange,
         minecraft_version_range: spec.minecraftRange, loader_version_range: '[4,)',
         neoforge_version: spec.neoForge ?: '', loader_version: spec.loaderVersion ?: '',
-        modmenu_version: spec.modmenu ?: '']
+        modmenu_version: spec.modmenu ?: '',
+        catalog_mixins: spec.mc < 260100
+                ? ['Items', 'Exchange', 'Equipment', 'Dyed', 'Book', 'Map', 'Stew', 'Arrow', 'Typed'].collect { '"catalog.Legacy' + it + 'Accessor",' }.join('\n    ')
+                : '"catalog.ModernTradeAccessor",']
 tasks.named('processResources') {
     inputs.properties substitutions
     filesMatching(['fabric.mod.json', '*mixins.json', 'META-INF/neoforge.mods.toml']) { expand substitutions }
@@ -93,4 +96,9 @@ publishing {
             from components.java
         }
     }
+}
+
+// Opt-in development test mod. Never included in distributable jars.
+if (providers.gradleProperty('tradeSmokeTest').isPresent()) {
+    apply from: rootProject.file('gradle/trade-smoke.gradle')
 }

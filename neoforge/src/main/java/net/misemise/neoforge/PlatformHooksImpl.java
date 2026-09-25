@@ -8,6 +8,8 @@ import net.minecraft.world.entity.npc.villager.Villager;
 //#endif
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
+import net.misemise.network.TradeTargetDataPayload;
+import net.misemise.target.TradeLockData;
 import net.misemise.platform.PlatformHooks;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -19,6 +21,14 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class PlatformHooksImpl implements PlatformHooks {
+
+    @Override public void sendTargets(ServerPlayer player, TradeTargetDataPayload payload) { PacketDistributor.sendToPlayer(player, payload); }
+    @Override public TradeLockData getTradeLocks(Villager villager) {
+        return villager.getExistingData(RerollTradesNeoForgeAttachments.tradeLocks()).orElse(TradeLockData.EMPTY);
+    }
+    @Override public void setTradeLocks(Villager villager, TradeLockData data) {
+        villager.setData(RerollTradesNeoForgeAttachments.tradeLocks(), data);
+    }
 
     @Override
     public Path getConfigDir() {

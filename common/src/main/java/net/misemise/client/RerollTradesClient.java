@@ -9,6 +9,7 @@ import net.minecraft.util.RandomSource;
 import net.misemise.config.RerollClientConfig;
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
+import net.misemise.network.TradeTargetDataPayload;
 
 public final class RerollTradesClient {
 
@@ -18,12 +19,26 @@ public final class RerollTradesClient {
     public static void handleState(RerollStatePayload state) {
         Minecraft minecraft = Minecraft.getInstance();
 //#if MC >= 260200
+        if (minecraft.gui.screen() instanceof TradeTargetScreen target) target.applyState(state);
+//#else
+//$$         if (minecraft.screen instanceof TradeTargetScreen target) target.applyState(state);
+//#endif
+//#if MC >= 260200
         if (minecraft.gui.screen() instanceof RerollScreenAccess screen) {
 //#else
 //$$         if (minecraft.screen instanceof RerollScreenAccess screen) {
 //#endif
             screen.rerollTrades$applyState(state);
         }
+    }
+
+    public static void handleTargets(TradeTargetDataPayload data) {
+        Minecraft minecraft = Minecraft.getInstance();
+//#if MC >= 260200
+        if (minecraft.gui.screen() instanceof TradeTargetScreen target) target.applyData(data);
+//#else
+//$$         if (minecraft.screen instanceof TradeTargetScreen target) target.applyData(data);
+//#endif
     }
 
     public static void handleEffect(RerollEffectPayload effect) {

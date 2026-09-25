@@ -8,6 +8,8 @@ import net.minecraft.world.entity.npc.villager.Villager;
 //#endif
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
+import net.misemise.network.TradeTargetDataPayload;
+import net.misemise.target.TradeLockData;
 
 import java.nio.file.Path;
 import java.util.UUID;
@@ -19,6 +21,12 @@ public interface PlatformHooks {
     void sendState(ServerPlayer player, RerollStatePayload payload);
 
     void sendEffect(ServerPlayer player, RerollEffectPayload payload);
+
+    void sendTargets(ServerPlayer player, TradeTargetDataPayload payload);
+
+    TradeLockData getTradeLocks(Villager villager);
+
+    void setTradeLocks(Villager villager, TradeLockData data);
 
     boolean isGloballyLocked(Villager villager);
 

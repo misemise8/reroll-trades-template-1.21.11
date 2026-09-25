@@ -3,10 +3,12 @@
   "package": "net.misemise.mixin",
   "compatibilityLevel": "JAVA_${java_version}",
   "mixins": [
+    ${catalog_mixins}
     "AbstractVillagerTradeMixin",
     "MerchantMenuLifecycleMixin",
     "MerchantScreenHandlerAccessor",
-    "VillagerEntityAccessor"
+    "VillagerEntityAccessor",
+    "VillagerPriceAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

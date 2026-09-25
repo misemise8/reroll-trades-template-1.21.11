@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
+import net.misemise.network.TradeTargetDataPayload;
 import org.lwjgl.glfw.GLFW;
 
 public final class RerollTradesFabricClient implements ClientModInitializer {
@@ -40,6 +41,8 @@ public final class RerollTradesFabricClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(RerollEffectPayload.TYPE, (payload, context) ->
                 context.client().execute(() -> net.misemise.client.RerollTradesClient.handleEffect(payload))
         );
+        ClientPlayNetworking.registerGlobalReceiver(TradeTargetDataPayload.TYPE, (payload, context) ->
+                context.client().execute(() -> net.misemise.client.RerollTradesClient.handleTargets(payload)));
     }
 
     public static KeyMapping getRerollKey() {

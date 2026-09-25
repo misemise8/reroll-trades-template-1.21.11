@@ -1,6 +1,7 @@
 package net.misemise.neoforge;
 
 import com.mojang.serialization.Codec;
+import net.misemise.target.TradeLockData;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -58,6 +59,18 @@ final class RerollTradesNeoForgeAttachments {
 
     private RerollTradesNeoForgeAttachments() {
     }
+
+    private static final DeferredHolder<AttachmentType<?>, AttachmentType<TradeLockData>> TRADE_LOCKS =
+            ATTACHMENT_TYPES.register("trade_targets",
+                    () -> AttachmentType.builder(() -> TradeLockData.EMPTY)
+//#if MC >= 12108
+                            .serialize(TradeLockData.CODEC.fieldOf("trade_targets"))
+//#else
+//$$                             .serialize(TradeLockData.CODEC)
+//#endif
+                            .build());
+
+    static AttachmentType<TradeLockData> tradeLocks() { return TRADE_LOCKS.get(); }
 
     static void register(IEventBus modEventBus) {
         ATTACHMENT_TYPES.register(modEventBus);

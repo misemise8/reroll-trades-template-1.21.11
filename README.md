@@ -2,9 +2,12 @@
 
 Reroll Trades adds a button and configurable keybind for regenerating a villager's offers without charging emeralds, experience, or items.
 
-## 3.1.0 features
+## 3.2.0 features
 
 - Free server-authoritative rerolls
+- Trade targets with item, enchantment, exact level and maximum emerald price
+- Automatic per-slot locking, with manual rerolls and Undo preserving locked offers
+- Searchable sale catalogs for all 13 professions, with generated base price ranges
 - A villager becomes permanently locked for everyone after any completed trade, including after restocks and restarts
 - One-step Undo for the latest reroll in the same screen
 - Server-side cooldown and optional per-player/per-villager limit
@@ -13,6 +16,22 @@ Reroll Trades adds a button and configurable keybind for regenerating a villager
 - English and Japanese UI
 
 The buttons only appear for supported villagers after the server confirms the current screen. Wandering traders and other merchant screens are left unchanged.
+
+### Trade targets
+
+Open a villager's trading screen and click **L** to choose a sale from its current profession and level.
+Search by item or enchantment name, select a result, enter the emerald limit (for example **10**), and save it.
+Matching offers lock automatically, including offers already on screen. Keep using the normal reroll button for the remaining slots.
+The **Saved targets** tab shows which slot each target has locked. Removing a target unlocks its slot.
+
+Each villager stores up to 16 targets, shared by all players, with one locked slot per target.
+Targets and locks persist with the villager. Changing its profession clears them.
+The price limit uses the price shown to the player when the offer matches. Later discounts and demand changes still apply.
+Displayed ranges describe base prices before those adjustments; equipment ranges cover all enchantment rolls for that item.
+Unknown custom trade ranges are labeled unknown. Existing extra ingredients remain required.
+Completing any trade still disables all rerolls for that villager.
+
+Both client and server must use 3.2.0 for the new controls. See [the target guide](docs/trade-targets.md) for details and validation instructions.
 
 ## Configuration
 

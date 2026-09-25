@@ -8,9 +8,12 @@ import net.minecraft.client.input.KeyEvent;
 //#endif
 import net.minecraft.network.chat.Component;
 import net.misemise.network.RerollActionPayload;
+import net.misemise.network.TradeTargetActionPayload;
 import net.misemise.reroll.RerollAction;
 
 public final class ClientPlatformHooksImpl implements ClientPlatformHooks {
+
+    @Override public void sendTargetAction(TradeTargetActionPayload payload) { ClientPlayNetworking.send(payload); }
 
     @Override
 //#if MC >= 12109

@@ -21,6 +21,8 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.misemise.RerollTrades;
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
+import net.misemise.network.TradeTargetDataPayload;
+import net.misemise.target.TradeLockData;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -30,6 +32,27 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class PlatformHooksImpl implements PlatformHooks {
+
+//#if MC >= 12111
+    private static final AttachmentType<TradeLockData> TRADE_LOCKS = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "trade_targets"),
+            builder -> builder.persistent(TradeLockData.CODEC).initializer(() -> TradeLockData.EMPTY));
+//#elseif MC >= 12104
+//$$     private static final AttachmentType<TradeLockData> TRADE_LOCKS = AttachmentRegistry.create(
+//$$             ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "trade_targets"),
+//$$             builder -> builder.persistent(TradeLockData.CODEC).initializer(() -> TradeLockData.EMPTY));
+//#else
+//$$     private static final AttachmentType<TradeLockData> TRADE_LOCKS = AttachmentRegistry.<TradeLockData>builder()
+//$$             .persistent(TradeLockData.CODEC).initializer(() -> TradeLockData.EMPTY)
+//$$             .buildAndRegister(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "trade_targets"));
+//#endif
+
+    @Override public void sendTargets(ServerPlayer player, TradeTargetDataPayload payload) { ServerPlayNetworking.send(player, payload); }
+    @Override public TradeLockData getTradeLocks(Villager villager) {
+        TradeLockData data = villager.getAttached(TRADE_LOCKS);
+        return data == null ? TradeLockData.EMPTY : data;
+    }
+    @Override public void setTradeLocks(Villager villager, TradeLockData data) { villager.setAttached(TRADE_LOCKS, data); }
 
     private static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
     private static final Codec<Map<UUID, Integer>> REROLL_COUNTS_CODEC = Codec.unboundedMap(UUID_CODEC, Codec.INT);

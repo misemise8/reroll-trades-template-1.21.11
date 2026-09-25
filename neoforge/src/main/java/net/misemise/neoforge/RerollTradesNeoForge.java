@@ -10,6 +10,9 @@ import net.misemise.client.RerollConfigScreen;
 import net.misemise.network.RerollActionPayload;
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
+import net.misemise.network.TradeTargetActionPayload;
+import net.misemise.network.TradeTargetDataPayload;
+import net.misemise.target.TradeTargetController;
 import net.misemise.reroll.RerollController;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
@@ -42,7 +45,9 @@ public final class RerollTradesNeoForge {
     }
 
     private void registerPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("2");
+        PayloadRegistrar registrar = event.registrar("3");
+        registrar.playToServer(TradeTargetActionPayload.TYPE, TradeTargetActionPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> TradeTargetController.handle((ServerPlayer) context.player(), payload)));
         registrar.playToServer(
                 RerollActionPayload.TYPE,
                 RerollActionPayload.STREAM_CODEC,
@@ -51,8 +56,11 @@ public final class RerollTradesNeoForge {
         );
 //#if MC >= 12108
         registrar.playToClient(RerollStatePayload.TYPE, RerollStatePayload.STREAM_CODEC);
+        registrar.playToClient(TradeTargetDataPayload.TYPE, TradeTargetDataPayload.STREAM_CODEC);
         registrar.playToClient(RerollEffectPayload.TYPE, RerollEffectPayload.STREAM_CODEC);
 //#else
+//$$         registrar.playToClient(TradeTargetDataPayload.TYPE, TradeTargetDataPayload.STREAM_CODEC,
+//$$                 (payload, context) -> context.enqueueWork(() -> RerollTradesClient.handleTargets(payload)));
 //$$         registrar.playToClient(
 //$$                 RerollStatePayload.TYPE,
 //$$                 RerollStatePayload.STREAM_CODEC,

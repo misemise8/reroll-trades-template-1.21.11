@@ -5,6 +5,7 @@ import net.minecraft.client.input.KeyEvent;
 //#endif
 import net.minecraft.network.chat.Component;
 import net.misemise.reroll.RerollAction;
+import net.misemise.network.TradeTargetActionPayload;
 
 import java.util.ServiceLoader;
 
@@ -33,4 +34,6 @@ public final class ClientPlatformServices {
     public static void sendAction(RerollAction action, int containerId) {
         PLATFORM.sendAction(action, containerId);
     }
+
+    public static void sendTargetAction(TradeTargetActionPayload payload) { PLATFORM.sendTargetAction(payload); }
 }

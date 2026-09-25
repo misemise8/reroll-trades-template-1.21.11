@@ -19,14 +19,16 @@ public record RerollStatePayload(
         boolean canUndo,
         int remainingCooldownTicks,
         int remainingRerolls,
-        boolean requireSneaking
+        boolean requireSneaking,
+        int lockedCount,
+        int targetCount
 ) implements CustomPacketPayload {
 
     public static final Type<RerollStatePayload> TYPE =
 //#if MC >= 12111
-            new Type<>(Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "screen_state"));
+            new Type<>(Identifier.fromNamespaceAndPath(RerollTrades.MOD_ID, "screen_state_v3"));
 //#else
-//$$             new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "screen_state"));
+//$$             new Type<>(ResourceLocation.fromNamespaceAndPath(RerollTrades.MOD_ID, "screen_state_v3"));
 //#endif
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RerollStatePayload> STREAM_CODEC = StreamCodec.of(
@@ -39,6 +41,8 @@ public record RerollStatePayload(
                 buffer.writeVarInt(payload.remainingCooldownTicks);
                 buffer.writeVarInt(payload.remainingRerolls + 1);
                 buffer.writeBoolean(payload.requireSneaking);
+                buffer.writeVarInt(payload.lockedCount);
+                buffer.writeVarInt(payload.targetCount);
             },
             buffer -> new RerollStatePayload(
                     buffer.readVarInt(),
@@ -48,7 +52,9 @@ public record RerollStatePayload(
                     buffer.readBoolean(),
                     buffer.readVarInt(),
                     buffer.readVarInt() - 1,
-                    buffer.readBoolean()
+                    buffer.readBoolean(),
+                    buffer.readVarInt(),
+                    buffer.readVarInt()
             )
     );
 

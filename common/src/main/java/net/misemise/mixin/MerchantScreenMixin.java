@@ -13,6 +13,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.misemise.client.RerollScreenAccess;
+import net.misemise.client.TradeTargetScreen;
 import net.misemise.config.RerollClientConfig;
 import net.misemise.network.RerollStatePayload;
 import net.misemise.platform.ClientPlatformServices;
@@ -37,6 +38,15 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
 
     @Unique
     private RerollStatePayload rerollTrades$state;
+
+    @Unique private Button rerollTrades$targetsButton;
+    @Unique private boolean rerollTrades$targetScreenOpen;
+
+    @Override public void rerollTrades$setTargetScreenOpen(boolean open) { rerollTrades$targetScreenOpen = open; }
+
+    @Override public void removed() {
+        if (!rerollTrades$targetScreenOpen) super.removed();
+    }
 
     private MerchantScreenMixin(MerchantMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -75,6 +85,18 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
         this.rerollTrades$undoButton.visible = false;
         this.addRenderableWidget(this.rerollTrades$undoButton);
 
+        this.rerollTrades$targetsButton = Button.builder(Component.literal("L"), button -> {
+            rerollTrades$targetScreenOpen = true;
+            TradeTargetScreen screen = new TradeTargetScreen(this, this.menu.containerId);
+//#if MC >= 12109
+            Minecraft.getInstance().setScreenAndShow(screen);
+//#else
+//$$             Minecraft.getInstance().setScreen(screen);
+//#endif
+        }).bounds(buttonX, this.topPos + 52, 18, 18).build();
+        this.rerollTrades$targetsButton.visible = false;
+        this.addRenderableWidget(this.rerollTrades$targetsButton);
+
         ClientPlatformServices.sendAction(RerollAction.REQUEST_STATE, this.menu.containerId);
     }
 
@@ -94,7 +116,9 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
                     rerollTrades$state.canUndo(),
                     remaining,
                     rerollTrades$state.remainingRerolls(),
-                    rerollTrades$state.requireSneaking()
+                    rerollTrades$state.requireSneaking(),
+                    rerollTrades$state.lockedCount(),
+                    rerollTrades$state.targetCount()
             );
         }
         rerollTrades$updateControls();
@@ -150,6 +174,14 @@ public abstract class MerchantScreenMixin extends AbstractContainerScreen<Mercha
         rerollTrades$undoButton.visible = supported && config.showUndoButton;
         rerollTrades$rerollButton.active = rerollTrades$canRequestReroll();
         rerollTrades$undoButton.active = supported && rerollTrades$state.canUndo();
+        if (rerollTrades$targetsButton != null) {
+            rerollTrades$targetsButton.visible = supported;
+            rerollTrades$targetsButton.active = supported;
+            rerollTrades$targetsButton.setMessage(Component.literal(supported && rerollTrades$state.lockedCount() > 0 ? "L" + rerollTrades$state.lockedCount() : "L"));
+            rerollTrades$targetsButton.setTooltip(Tooltip.create(supported
+                    ? Component.translatable("target.reroll-trades.summary", rerollTrades$state.lockedCount(), rerollTrades$state.targetCount())
+                    : Component.translatable("target.reroll-trades.title")));
+        }
 
         rerollTrades$rerollButton.setTooltip(Tooltip.create(rerollTrades$rerollTooltip(config)));
         rerollTrades$undoButton.setTooltip(Tooltip.create(rerollTrades$undoTooltip()));

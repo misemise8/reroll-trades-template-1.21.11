@@ -5,6 +5,7 @@ import net.minecraft.client.input.KeyEvent;
 //#endif
 import net.minecraft.network.chat.Component;
 import net.misemise.reroll.RerollAction;
+import net.misemise.network.TradeTargetActionPayload;
 
 public interface ClientPlatformHooks {
 
@@ -17,4 +18,6 @@ public interface ClientPlatformHooks {
     Component rerollKeyName();
 
     void sendAction(RerollAction action, int containerId);
+
+    void sendTargetAction(TradeTargetActionPayload payload);
 }

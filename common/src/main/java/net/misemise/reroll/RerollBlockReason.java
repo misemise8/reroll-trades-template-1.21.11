@@ -8,7 +8,10 @@ public enum RerollBlockReason {
     NO_PROFESSION,
     COOLDOWN,
     LIMIT_REACHED,
-    UNDO_UNAVAILABLE;
+    UNDO_UNAVAILABLE,
+    ALL_LOCKED,
+    LAYOUT_CHANGED,
+    GENERATION_FAILED;
 
     public static RerollBlockReason byId(int id) {
         RerollBlockReason[] values = values();

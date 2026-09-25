@@ -1,0 +1,79 @@
+import net.misemise.buildlogic.PreprocessSources
+
+def generatedSmoke = tasks.register('preprocessSmoke', PreprocessSources) {
+    sourceRoots.from(rootProject.file('tests/smoke/java'), rootProject.file("tests/smoke/${targetSpec.loader}"))
+    minecraftVersion = targetSpec.mc
+    outputDirectory = layout.buildDirectory.dir('generated/sources/smoke/java')
+}
+sourceSets {
+    smoke {
+        java.srcDir generatedSmoke.flatMap { it.outputDirectory }
+        resources.srcDir rootProject.file("tests/smoke/${targetSpec.loader}-resources")
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+tasks.named('compileSmokeJava') { dependsOn generatedSmoke }
+if (targetSpec.loader == 'fabric') loom {
+    mods {
+        'reroll-trades' { sourceSet sourceSets.main }
+        'trade-target-smoke' { sourceSet sourceSets.smoke }
+    }
+    runs {
+        smoke {
+            server()
+            name 'Trade target server tests'
+            source sourceSets.smoke
+            runDir 'build/smoke-run'
+            vmArg '-Djava.awt.headless=true'
+        }
+        if (targetSpec.mc >= 260200) clientSmoke {
+            client()
+            source sourceSets.smoke
+            runDir 'build/client-smoke-run'
+            vmArg '-DtradeTargetClientSmoke=true'
+            programArgs '--width', '1280', '--height', '720'
+        }
+    }
+}
+
+else neoForge {
+    mods { trade_target_smoke { sourceSet sourceSets.smoke } }
+    runs {
+        smoke {
+            server()
+            sourceSet = sourceSets.smoke
+            gameDirectory = layout.buildDirectory.dir('smoke-run')
+            programArgument '--nogui'
+        }
+    }
+}
+if (targetSpec.loader == 'fabric') tasks.named('processSmokeResources') {
+    inputs.property 'modernClient', targetSpec.mc >= 260200
+    filesMatching('fabric.mod.json') {
+        filter { line -> line.replace('"environment": "server"', '"environment": "*"')
+            .replace('"main": ["net.misemise.smoke.FabricSmoke"]', '"main": ["net.misemise.smoke.FabricSmoke"]' +
+                (targetSpec.mc >= 260200 ? ', "client": ["net.misemise.smoke.TargetClientSmoke"]' : ''))
+            .replace('"depends":', (targetSpec.mc >= 260200 ? '"mixins": [{"config": "trade-smoke.client-mixins.json", "environment": "client"}], ' : '') + '"depends":') }
+    }
+}
+
+tasks.register('prepareTradeSmoke') {
+    doLast {
+        def dir = layout.buildDirectory.dir('smoke-run').get().asFile
+        dir.mkdirs()
+        new File(dir, 'eula.txt').text = 'eula=true\n'
+        new File(dir, 'server.properties').text = 'server-ip=127.0.0.1\nserver-port=0\nonline-mode=false\nlevel-type=minecraft:flat\ngenerator-settings={"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains"}\ngenerate-structures=false\nview-distance=2\nsimulation-distance=2\nspawn-protection=0\nmax-tick-time=120000\n'
+        new File(dir, 'trade-smoke-result.json').delete()
+    }
+}
+tasks.named('runSmoke', JavaExec) {
+    dependsOn 'prepareTradeSmoke'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(targetSpec.java) }
+    doLast {
+        def report = new File(workingDir, 'trade-smoke-result.json')
+        if (!report.isFile() || new groovy.json.JsonSlurper().parse(report).status != 'passed') {
+            throw new GradleException("Trade target tests failed; inspect ${report}")
+        }
+    }
+}

@@ -22,6 +22,9 @@ import net.misemise.mixin.VillagerEntityAccessor;
 import net.misemise.network.RerollEffectPayload;
 import net.misemise.network.RerollStatePayload;
 import net.misemise.platform.PlatformServices;
+import net.misemise.mixin.VillagerPriceAccessor;
+import net.misemise.target.TradeLockData;
+import net.misemise.target.TradeTargetController;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +49,7 @@ public final class RerollController {
             PlatformServices.sendState(player, unsupportedState(menu.containerId));
             return;
         }
+        if (villager.getTradingPlayer() != player) return;
 
         switch (action) {
             case REQUEST_STATE -> sendState(player, menu, villager, true);
@@ -64,6 +68,7 @@ public final class RerollController {
     }
 
     public static void onMenuClosed(ServerPlayer player, int containerId) {
+        TradeTargetController.close(player);
         UndoEntry entry = UNDO_ENTRIES.get(player.getUUID());
         if (entry != null && entry.containerId == containerId) {
             UNDO_ENTRIES.remove(player.getUUID());
@@ -71,6 +76,7 @@ public final class RerollController {
     }
 
     public static void onPlayerLogout(ServerPlayer player) {
+        TradeTargetController.close(player);
         UUID playerId = player.getUUID();
         UNDO_ENTRIES.remove(playerId);
         NEXT_REROLL_TICK.remove(playerId);
@@ -91,6 +97,7 @@ public final class RerollController {
     }
 
     public static void refreshOpenScreens(MinecraftServer server) {
+        TradeTargetController.clearSessions();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if (player.containerMenu instanceof MerchantMenu menu) {
                 handleAction(player, RerollAction.REQUEST_STATE, menu.containerId);
@@ -121,20 +128,40 @@ public final class RerollController {
             return;
         }
 
+        TradeLockData locks = TradeTargetController.current(villager);
         MerchantOffers previousOffers = villager.getOffers().copy();
         MerchantOffers workingOffers = villager.getOffers();
         workingOffers.clear();
+        try {
 //#if MC >= 12111
-        ((VillagerEntityAccessor) villager).rerollTrades$updateTrades((ServerLevel) villager.level());
+            ((VillagerEntityAccessor) villager).rerollTrades$updateTrades((ServerLevel) villager.level());
 //#else
-//$$         ((VillagerEntityAccessor) villager).rerollTrades$updateTrades();
+//$$             ((VillagerEntityAccessor) villager).rerollTrades$updateTrades();
 //#endif
+        } catch (RuntimeException exception) {
+            villager.setOffers(previousOffers.copy());
+            syncOffers(player, menu, villager);
+            RerollTrades.LOGGER.error("Could not regenerate villager trades; restored the previous offers", exception);
+            PlatformServices.sendState(player, buildState(player, menu, villager, false, RerollBlockReason.GENERATION_FAILED));
+            return;
+        }
 
         if (villager.getOffers().isEmpty()) {
             villager.setOffers(previousOffers.copy());
             PlatformServices.sendState(player, buildState(player, menu, villager, false, RerollBlockReason.NO_PROFESSION));
             return;
         }
+        if (!locks.locks().isEmpty() && villager.getOffers().size() != previousOffers.size()) {
+            villager.setOffers(previousOffers.copy());
+            syncOffers(player, menu, villager);
+            PlatformServices.sendState(player, buildState(player, menu, villager, false, RerollBlockReason.LAYOUT_CHANGED));
+            return;
+        }
+        for (TradeLockData.LockedOffer lock : locks.locks()) {
+            villager.getOffers().set(lock.slot(), previousOffers.get(lock.slot()).copy());
+        }
+        updatePrices(player, villager);
+        PlatformServices.setTradeLocks(villager, locks.lockMatches(villager.getOffers()));
 
         RerollServerConfig config = RerollServerConfig.get();
         if (config.maxRerollsPerPlayerPerVillager > 0) {
@@ -168,7 +195,13 @@ public final class RerollController {
         }
 
         UNDO_ENTRIES.remove(player.getUUID());
-        villager.setOffers(entry.offers.copy());
+        MerchantOffers restored = entry.offers.copy();
+        TradeLockData locks = TradeTargetController.current(villager);
+        for (TradeLockData.LockedOffer lock : locks.locks()) {
+            restored.set(lock.slot(), villager.getOffers().get(lock.slot()).copy());
+        }
+        villager.setOffers(restored);
+        updatePrices(player, villager);
         syncOffers(player, menu, villager);
         sendState(player, menu, villager, true);
         PlatformServices.sendEffect(player, new RerollEffectPayload(villager.blockPosition(), true));
@@ -204,7 +237,9 @@ public final class RerollController {
         RerollBlockReason reason = forcedReason != null
                 ? forcedReason
                 : evaluate(player, villager, config, remaining, cooldown, includeSneaking);
-        boolean canUndo = config.enableUndo && validUndo(player, menu, villager, false) != null;
+        TradeLockData locks = TradeTargetController.current(villager);
+        boolean canUndo = config.enableUndo && locks.locks().size() < villager.getOffers().size()
+                && validUndo(player, menu, villager, false) != null;
 
         return new RerollStatePayload(
                 menu.containerId,
@@ -214,7 +249,9 @@ public final class RerollController {
                 canUndo,
                 cooldown,
                 remaining,
-                config.requireSneaking
+                config.requireSneaking,
+                locks.locks().size(),
+                locks.rules().size()
         );
     }
 
@@ -231,6 +268,9 @@ public final class RerollController {
         }
         if (villager.getOffers().isEmpty()) {
             return RerollBlockReason.NO_PROFESSION;
+        }
+        if (TradeTargetController.current(villager).locks().size() == villager.getOffers().size()) {
+            return RerollBlockReason.ALL_LOCKED;
         }
         if (remaining == 0) {
             return RerollBlockReason.LIMIT_REACHED;
@@ -254,6 +294,7 @@ public final class RerollController {
         boolean valid = entry.playerId.equals(player.getUUID())
                 && entry.villagerId.equals(villager.getUUID())
                 && entry.containerId == menu.containerId
+                && entry.offers.size() == villager.getOffers().size()
                 && age <= RerollServerConfig.get().undoTimeoutSeconds * 20L
                 && !PlatformServices.isGloballyLocked(villager);
         if (!valid && removeInvalid) {
@@ -272,6 +313,8 @@ public final class RerollController {
     }
 
     private static void syncOffers(ServerPlayer player, MerchantMenu menu, Villager villager) {
+        menu.slotsChanged(((MerchantScreenHandlerAccessor) menu).rerollTrades$getTradeContainer());
+        menu.broadcastChanges();
         player.connection.send(new ClientboundMerchantOffersPacket(
                 menu.containerId,
                 villager.getOffers(),
@@ -295,8 +338,17 @@ public final class RerollController {
                 false,
                 0,
                 -1,
-                false
+                false,
+                0,
+                0
         );
+    }
+
+    public static void invalidateUndo(ServerPlayer player) { UNDO_ENTRIES.remove(player.getUUID()); }
+
+    private static void updatePrices(ServerPlayer player, Villager villager) {
+        villager.getOffers().forEach(offer -> offer.resetSpecialPriceDiff());
+        ((VillagerPriceAccessor) villager).rerollTrades$updateSpecialPrices(player);
     }
 
     private record UndoEntry(

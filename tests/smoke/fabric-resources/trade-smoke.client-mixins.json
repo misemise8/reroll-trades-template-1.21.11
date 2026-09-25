@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "net.misemise.smoke.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["TargetScreenFixtureMixin"],
+  "injectors": {"defaultRequire": 1}
+}
