@@ -39,9 +39,9 @@ import java.util.Locale;
 public final class TradeTargetScreen extends Screen {
     private static final int MAX_PANEL_WIDTH = 320, MAX_PANEL_HEIGHT = 232;
 //#if MC >= 12111
-    private static final Identifier PANEL_TEXTURE = Identifier.fromNamespaceAndPath("reroll-trades", "textures/gui/trade_panel.png");
+    private static final Identifier PANEL_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "textures/gui/container/generic_54.png");
 //#else
-//$$     private static final ResourceLocation PANEL_TEXTURE = ResourceLocation.fromNamespaceAndPath("reroll-trades", "textures/gui/trade_panel.png");
+//$$     private static final ResourceLocation PANEL_TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/generic_54.png");
 //#endif
     private enum Stage { ITEM, TYPE, LEVEL, PRICE, RULES, DETAIL }
     private record Route(Stage stage, List<Integer> scope, int page, String query) {}
@@ -76,18 +76,7 @@ public final class TradeTargetScreen extends Screen {
         top = (height - panelHeight) / 2;
         scrollRemainder = 0;
         cells.clear(); search = null; minimum = null; maximum = null; save = null;
-        addRenderableOnly((graphics, mouseX, mouseY, tick) -> {
-            graphics.fill(left - 1, top - 1, left + panelWidth + 1, top + panelHeight + 1, 0xFF373737);
-//#if MC >= 12106
-            graphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, PANEL_TEXTURE, left, top, 0, 0, panelWidth, panelHeight, 1254, 1254, 1254, 1254);
-//#elseif MC >= 12102
-//$$             graphics.blit(net.minecraft.client.renderer.RenderType::guiTextured, PANEL_TEXTURE, left, top, 0, 0, panelWidth, panelHeight, 1254, 1254, 1254, 1254);
-//#else
-//$$             graphics.blit(PANEL_TEXTURE, left, top, panelWidth, panelHeight, 0, 0, 1254, 1254, 1254, 1254);
-//#endif
-            graphics.fill(left, top, left + panelWidth, top + panelHeight, 0x50C6C6C6);
-            graphics.fill(left + 1, top + 1, left + panelWidth - 1, top + 2, 0xFFF3F3F3);
-        });
+        addRenderableOnly((graphics, mouseX, mouseY, tick) -> drawPanel(graphics));
         Component heading = Component.translatable("target.reroll-trades.step." + stage.name().toLowerCase(Locale.ROOT));
         text(38, 6, panelWidth - 76, 18, heading);
         Button back = addRenderableWidget(Button.builder(Component.literal("<"), b -> back()).bounds(left + 8, top + 6, 20, 18).build());
@@ -103,6 +92,37 @@ public final class TradeTargetScreen extends Screen {
         else gridPage();
         refreshStatus();
         if (data == null && !waiting) request();
+    }
+
+//#if MC >= 260100
+    private void drawPanel(GuiGraphicsExtractor graphics) {
+//#else
+//$$     private void drawPanel(GuiGraphics graphics) {
+//#endif
+        // Keep the chest's four-pixel bevel intact; resize only the blank center and edge lengths.
+        chestRegion(graphics, left + 4, top + 4, panelWidth - 8, panelHeight - 8, 4, 4, 168, 12);
+        chestRegion(graphics, left + 4, top, panelWidth - 8, 4, 4, 0, 168, 4);
+        chestRegion(graphics, left + 4, top + panelHeight - 4, panelWidth - 8, 4, 4, 218, 168, 4);
+        chestRegion(graphics, left, top + 4, 4, panelHeight - 8, 0, 4, 4, 214);
+        chestRegion(graphics, left + panelWidth - 4, top + 4, 4, panelHeight - 8, 172, 4, 4, 214);
+        chestRegion(graphics, left, top, 4, 4, 0, 0, 4, 4);
+        chestRegion(graphics, left + panelWidth - 4, top, 4, 4, 172, 0, 4, 4);
+        chestRegion(graphics, left, top + panelHeight - 4, 4, 4, 0, 218, 4, 4);
+        chestRegion(graphics, left + panelWidth - 4, top + panelHeight - 4, 4, 4, 172, 218, 4, 4);
+    }
+
+//#if MC >= 260100
+    private static void chestRegion(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int u, int v, int regionWidth, int regionHeight) {
+//#else
+//$$     private static void chestRegion(GuiGraphics graphics, int x, int y, int w, int h, int u, int v, int regionWidth, int regionHeight) {
+//#endif
+//#if MC >= 12106
+        graphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, PANEL_TEXTURE, x, y, u, v, w, h, regionWidth, regionHeight, 256, 256);
+//#elseif MC >= 12102
+//$$         graphics.blit(net.minecraft.client.renderer.RenderType::guiTextured, PANEL_TEXTURE, x, y, u, v, w, h, regionWidth, regionHeight, 256, 256);
+//#else
+//$$         graphics.blit(PANEL_TEXTURE, x, y, w, h, u, v, regionWidth, regionHeight, 256, 256);
+//#endif
     }
 
     private StringWidget text(int x, int y, int w, int h, Component message) {
@@ -458,8 +478,8 @@ public final class TradeTargetScreen extends Screen {
             }
             int contentHeight = 20 + (captionLines.isEmpty() ? 0 : 2 + 9 * (stage == Stage.TYPE ? 2 : captionLines.size()));
             int x = getX() + (getWidth() - 20) / 2, y = getY() + (getHeight() - contentHeight) / 2;
-            graphics.fill(x, y, x + 20, y + 20, hover ? 0xFFF5F5F5 : 0xFF888888);
-            graphics.fill(x + 1, y + 1, x + 19, y + 19, hover ? 0xFFBBBBBB : 0xFFB2B2B2);
+            chestRegion(graphics, x + 1, y + 1, 18, 18, 7, 17, 18, 18);
+            if (hover) graphics.fill(x + 2, y + 2, x + 18, y + 18, 0x55FFFFFF);
 //#if MC >= 260100
             graphics.item(item, x + 2, y + 2);
 //#else

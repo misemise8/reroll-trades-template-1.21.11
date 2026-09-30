@@ -11,7 +11,7 @@
 
 UI labels follow the Minecraft language setting (Japanese and English translations; English fallback for other languages). Item and enchantment names use the game's translations, including registry-provided names. Long names wrap onto two lines, with ASCII dots for overflow. The normal grid shows 12 entries per page (9 in a narrower viewport). Search, arrow buttons and mouse-wheel paging handle longer lists; fractional trackpad scrolling accumulates into page steps. Wheel paging is active only inside the selection panel.
 
-The textured panel and the visible grid contents are centered again when the window or GUI scale changes. The background texture and generation prompts are documented in [ui-texture.md](ui-texture.md).
+The textured panel and the visible grid contents are centered again when the window or GUI scale changes. The chest frame and inset slot rendering are documented in [ui-texture.md](ui-texture.md).
 
 The displayed price range is the normal generated base price, before player discounts and demand.
 Both bounds are inclusive; blank minimum means 1 and blank maximum means 999. Values outside 1–999 or an inverted range cannot be saved and are rejected by the server.

@@ -55,4 +55,6 @@ The supported automated commands and report paths are documented in [trade-targe
 
 ## Texture refinement
 
-The final GUI uses an opaque generated PNG, with low-contrast gray rendering and aligned item slots even when labels wrap. The texture is shared by every target and can be replaced by a resource pack. Only client UI and resource files changed in this refinement; the server-controller results above are from the preceding 3.2.0 run. Japanese and English client fixtures were rerun after the UI changes.
+On 2026-09-30, the generated grain background was replaced by Minecraft's chest frame, fitted to the panel with fixed four-pixel corners and edges. Item icons now use matching inset slots. The vanilla texture is referenced at runtime rather than bundled.
+
+All 17 targets passed `buildAndGather` after this change. The Japanese 26.2 Fabric client fixture passed again, including navigation, saved targets, wheel paging and centering at three viewport sizes. Its rendered screenshots were inspected for the frame and slots. The English client and server-controller results above are from the preceding 3.2.0 run; this refinement changes only client drawing.
