@@ -49,7 +49,10 @@ final class ModernTradeCatalog {
             JsonObject wants = trade.getAsJsonObject("wants");
             ItemStack item = accessor.rerollTrades$gives().create();
             PriceRange price = wants.has("count") ? PriceRange.numberProvider(wants.get("count")) : PriceRange.fixed(1);
-            if (!wants.get("id").getAsString().equals("minecraft:emerald")) {
+            // Additional enchantment costs affect only the primary input; the emeralds may be secondary.
+            boolean primaryEmerald = wants.get("id").getAsString().equals("minecraft:emerald");
+            JsonObject additional = trade.has("additional_wants") ? trade.getAsJsonObject("additional_wants") : null;
+            if (!primaryEmerald && (additional == null || !additional.get("id").getAsString().equals("minecraft:emerald"))) {
                 if (item.is(Items.EMERALD)) {
                     var cost = accessor.rerollTrades$wants();
                     ItemStack input = new net.minecraft.world.item.trading.ItemCost(cost.item(), 1, cost.components()).itemStack();
@@ -57,6 +60,7 @@ final class ModernTradeCatalog {
                 }
                 continue;
             }
+            if (!primaryEmerald) price = additional.has("count") ? PriceRange.numberProvider(additional.get("count")) : PriceRange.fixed(1);
             JsonObject randomBook = null;
             JsonObject fixedBook = null;
             boolean equipment = false;
@@ -71,13 +75,13 @@ final class ModernTradeCatalog {
                             randomBook = function;
                         } else {
                             equipment = true;
-                            if (additionalCost(function)) unknownPrice = true;
+                            if (primaryEmerald && additionalCost(function)) unknownPrice = true;
                         }
                     }
                     case "enchant_with_levels" -> {
                         equipment = true;
                         equipmentFunction = function;
-                        if (additionalCost(function)) price = price.plus(PriceRange.numberProvider(function.get("levels")));
+                        if (primaryEmerald && additionalCost(function)) price = price.plus(PriceRange.numberProvider(function.get("levels")));
                     }
                     case "set_enchantments" -> {
                         fixedBook = function;
@@ -99,7 +103,7 @@ final class ModernTradeCatalog {
             if (randomBook != null) {
                 for (var enchantment : enchantments(b, randomBook.get("options"))) {
                     boolean doubled = selected(enchantment, trade.get("double_trade_price_enchantments"));
-                    if (additionalCost(randomBook) && !unknownPrice) {
+                    if (primaryEmerald && additionalCost(randomBook) && !unknownPrice) {
                         b.book(enchantment, 1, 255, price, doubled);
                     } else {
                         for (int level = enchantment.value().getMinLevel(); level <= Math.min(255, enchantment.value().getMaxLevel()); level++) {

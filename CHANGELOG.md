@@ -5,6 +5,7 @@
 - Added a compact centered, textured icon picker for all villager professions: item → type/enchantment → level → price, skipping unnecessary steps. Labels follow Minecraft's language setting.
 - Fit the vanilla chest frame to the panel bounds with fixed-width bevels and matching inset item slots.
 - Show generated price ranges with optional inclusive minimum/maximum conditions. Include villager buying trades with clearly labeled required item quantities.
+- Include exchanges with emeralds in either input slot, including flint and cooked fish; apply price conditions to the emerald cost.
 - Show saved target names, price bounds and lock status in an always-accessible Saved tab.
 - Display up to 12 choices per page, wrap long names cleanly and allow mouse-wheel/trackpad paging. Center the panel and its contents after resizing.
 - Automatically lock one matching offer per target and preserve those slots across manual rerolls and Undo. Normal discounts and demand changes remain active.

@@ -55,6 +55,7 @@ public final class TradeTargetSmoke {
             try {
                 ranges();
                 catalog(server);
+                exchangeCatalog(server);
                 rules(server);
                 controller(server);
                 result.put("status", "passed");
@@ -152,6 +153,41 @@ public final class TradeTargetSmoke {
         return new MerchantOffer(new ItemCost(Items.EMERALD, price), result, 12, 1, 0.05f);
     }
 
+    private record Exchange(String profession, int level, net.minecraft.world.item.Item result) {}
+    private static List<Exchange> exchanges() {
+        return List.of(new Exchange("fletcher", 1, Items.FLINT), new Exchange("fisherman", 1, Items.COOKED_COD),
+                new Exchange("fisherman", 2, Items.COOKED_SALMON));
+    }
+
+    private static void exchangeCatalog(MinecraftServer server) {
+        for (Exchange exchange : exchanges()) {
+            Villager entity = villager(server, exchange.profession(), exchange.level());
+            var candidates = TradeCatalog.create(entity);
+            TradeCandidate candidate = candidates.stream().filter(c -> !c.buying() && c.template().is(exchange.result())).findFirst().orElseThrow();
+            check(candidate.price().equals(PriceRange.fixed(1)), "exchange appears before generation with an emerald price of one: " + exchange.result());
+            int found = 0;
+            for (int roll = 0; roll < 40; roll++) {
+                generate(entity);
+                for (MerchantOffer offer : entity.getOffers()) if (offer.getResult().is(exchange.result())) {
+                    check(candidate.rule("exchange", 1, 1).matches(offer), "generated exchange matches exact emerald price");
+                    check(new TradeLockData(TradeCatalog.profession(entity), 0, List.of(candidate.rule("exchange", 1, 1)), List.of())
+                            .lockMatches(entity.getOffers()).locks().size() == 1, "generated exchange locks");
+                    found++;
+                }
+            }
+            check(found > 0, "sampled exchange: " + exchange.result());
+        }
+        // Unsupported factories still expose a visible sale when emeralds occupy the second input.
+        Villager custom = villager(server, "farmer", 1);
+        MerchantOffers offers = new MerchantOffers();
+        offers.add(new MerchantOffer(new ItemCost(Items.GRAVEL, 10), Optional.of(new ItemCost(Items.EMERALD, 3)),
+                new ItemStack(Items.QUARTZ, 2), 12, 1, 0.05f));
+        custom.setOffers(offers);
+        TradeCandidate visible = TradeCatalog.create(custom).stream().filter(c -> c.template().is(Items.QUARTZ)).findFirst().orElseThrow();
+        check(!visible.buying() && !visible.price().known() && visible.rule("custom", 3, 3).matches(offers.getFirst()), "visible custom exchange is selectable and uses emerald bounds");
+        phases.add("flint/cooked cod/cooked salmon catalogs; 40 rolls each; visible secondary-emerald custom sale");
+    }
+
     private static void rules(MinecraftServer server) {
         var mending = server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.MENDING);
         ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
@@ -161,6 +197,14 @@ public final class TradeTargetSmoke {
         check(!rule.matches(offer(11, book)), "reject above boundary");
         check(!new TradeRule("wrong", rule.template(), rule.enchantment(), 2, 10).matches(offer(10, book)), "exact enchantment level");
         check(!rule.matches(offer(10, new ItemStack(Items.BOOK))), "different item");
+        MerchantOffer exchange = new MerchantOffer(new ItemCost(Items.GRAVEL, 10), Optional.of(new ItemCost(Items.EMERALD, 3)),
+                new ItemStack(Items.FLINT, 10), 12, 1, 0.05f);
+        check(new TradeRule("flint", new ItemStack(Items.FLINT), "", 0, 3, 3, false).matches(exchange), "secondary emerald price includes exact bounds");
+        check(!new TradeRule("flint", new ItemStack(Items.FLINT), "", 0, 2).matches(exchange), "secondary emerald price rejects above maximum");
+        check(!new TradeRule("flint", new ItemStack(Items.FLINT), "", 0, 10, 4, false).matches(exchange), "material count cannot satisfy emerald minimum");
+        check(!new TradeRule("flint", new ItemStack(Items.FLINT), "", 0, 999, 1, true).matches(exchange), "exchange is not a villager buying trade");
+        check(!new TradeRule("flint", new ItemStack(Items.FLINT), "", 0, 999).matches(new MerchantOffer(
+                new ItemCost(Items.GRAVEL, 10), new ItemStack(Items.FLINT, 10), 12, 1, 0.05f)), "non-emerald barter is not an emerald-priced sale");
         MerchantOffers offers = new MerchantOffers();
         offers.add(offer(10, book)); offers.add(offer(20, book.copy()));
         TradeRule broad = new TradeRule("broad", rule.template(), "", 0, 30);
@@ -280,7 +324,38 @@ public final class TradeTargetSmoke {
         check(new TradeLockData.LockedOffer("", 0, beforeBlocked.get(0)).sameOffer(villager.getOffers().get(0)), "blocked reroll preserves offers");
         phases.add("controller reroll/undo x30; revisions; menu ownership; remove; entity persistence; packet codec; completed trade block");
         delayedAndAllLocked(server, player);
+        exchangeController(server, player);
         RerollController.onPlayerLogout(player);
+    }
+
+    private static void exchangeController(MinecraftServer server, ServerPlayer player) {
+        int containerId = 20;
+        for (Exchange exchange : exchanges()) {
+            Villager entity = villager(server, exchange.profession(), exchange.level());
+            for (int attempt = 0; attempt < 100 && entity.getOffers().stream().noneMatch(o -> o.getResult().is(exchange.result())); attempt++) generate(entity);
+            check(entity.getOffers().stream().anyMatch(o -> o.getResult().is(exchange.result())), "exchange offer available to controller");
+            entity.setTradingPlayer(player);
+            player.containerMenu = new MerchantMenu(containerId, player.getInventory(), entity);
+            TradeTargetController.handle(player, new TradeTargetActionPayload(containerId, TradeTargetActionPayload.REQUEST, 0, 0, 0));
+            int selection = -1;
+            for (int i = 0; i < targets.catalog().size(); i++) if (!targets.catalog().get(i).buying() && targets.catalog().get(i).template().is(exchange.result())) { selection = i; break; }
+            check(selection >= 0, "exchange is sent to the editor");
+            TradeTargetController.handle(player, new TradeTargetActionPayload(containerId, TradeTargetActionPayload.ADD, targets.revision(), selection, 1, 1));
+            check(targets.rules().size() == 1 && targets.lockedSlots().getFirst() >= 0, "saving exchange locks its slot");
+            int slot = targets.lockedSlots().getFirst();
+            MerchantOffer snapshot = entity.getOffers().get(slot).copy();
+            for (int roll = 0; roll < 5; roll++) {
+                RerollController.handleAction(player, RerollAction.REROLL, containerId);
+                check(state.canUndo(), "another slot remains available for exchange reroll");
+                check(new TradeLockData.LockedOffer("", slot, snapshot).sameOffer(entity.getOffers().get(slot)), "exchange ingredients and result survive reroll");
+                RerollController.handleAction(player, RerollAction.UNDO, containerId);
+                check(new TradeLockData.LockedOffer("", slot, snapshot).sameOffer(entity.getOffers().get(slot)), "exchange survives undo");
+            }
+            TradeTargetController.handle(player, new TradeTargetActionPayload(containerId, TradeTargetActionPayload.REMOVE, TradeTargetController.current(entity).revision(), 0, 0));
+            check(targets.rules().isEmpty() && targets.lockedSlots().isEmpty(), "removing exchange unlocks its slot");
+            containerId++;
+        }
+        phases.add("all three exchanges: editor payload/save/lock; reroll/Undo x5; removal");
     }
 
     private static void delayedAndAllLocked(MinecraftServer server, ServerPlayer player) {

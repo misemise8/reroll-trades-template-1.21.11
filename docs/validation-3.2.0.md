@@ -58,3 +58,22 @@ The supported automated commands and report paths are documented in [trade-targe
 On 2026-09-30, the generated grain background was replaced by Minecraft's chest frame, fitted to the panel with fixed four-pixel corners and edges. Item icons now use matching inset slots. The vanilla texture is referenced at runtime rather than bundled.
 
 All 17 targets passed `buildAndGather` after this change. The Japanese 26.2 Fabric client fixture passed again, including navigation, saved targets, wheel paging and centering at three viewport sizes. Its rendered screenshots were inspected for the frame and slots. The English client and server-controller results above are from the preceding 3.2.0 run; this refinement changes only client drawing.
+
+## Secondary emerald input regression (2026-09-30)
+
+The catalog and lock matcher now accept sales with emeralds in either input slot. Flint, cooked cod and cooked salmon are described before generation with a base emerald price of 1; bounds apply to that emerald input rather than the material count. Visible custom exchanges with secondary emerald costs are also included.
+
+All 17 release distributions were rebuilt after the fix. The expanded server suite passed on these configurations:
+
+| Target | Assertions | Result |
+| --- | ---: | --- |
+| fabric-1.21 | 2138 | passed |
+| fabric-26.1 | 2110 | passed |
+| fabric-26.2 | 2124 | passed |
+| neoforge-1.21 | 2136 | passed |
+| neoforge-26.1 | 2122 | passed |
+| neoforge-26.2 | 2128 | passed |
+
+Each suite samples 40 rerolls for each of the three exchange types, checks catalog membership and exact-price lock acquisition, and exercises editor payload/save, five partial rerolls with Undo, and removal for each exchange. Deterministic cases reject emerald prices outside the bounds and non-emerald barter. Assertion totals vary with the sampled exchange count.
+
+These tests use Minecraft server registries, generation, controllers and loader attachments with captured outbound packets. The client drawing and remote multiplayer path were not rerun for this server-side fix.

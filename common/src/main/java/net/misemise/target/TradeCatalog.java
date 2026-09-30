@@ -38,8 +38,9 @@ public final class TradeCatalog {
         }
         // Custom factories can still be selected once they are visible. Their generated range is unknown.
         for (MerchantOffer offer : villager.getOffers()) {
-            boolean buying = !offer.getCostA().is(Items.EMERALD) && offer.getResult().is(Items.EMERALD);
-            if (!buying && !offer.getCostA().is(Items.EMERALD)) continue;
+            boolean selling = !TradeRule.emeraldCost(offer).isEmpty();
+            boolean buying = !selling && offer.getResult().is(Items.EMERALD);
+            if (!buying && !selling) continue;
             ItemStack item = buying ? offer.getCostA() : offer.getResult();
             boolean known = builder.entries.stream().anyMatch(candidate -> candidate.buying() == buying && candidate.rule("", 999).matchesResult(item));
             if (!known) builder.add(item.copy(), "", 0, PriceRange.UNKNOWN, false, buying);

@@ -21,6 +21,7 @@ For villager buying trades, such as paper, the bounds and displayed range instea
 After locking, ordinary discounts and demand remain active even if the price exceeds the saved limit.
 For enchanted equipment, the displayed price range covers the item's possible rolls, not a conditional range for one enchantment combination.
 Additional trade ingredients and the result quantity are unchanged.
+Exchanges with emeralds in the second input, such as gravel to flint and raw fish to cooked fish, also appear in the catalog. Their price conditions refer to the emeralds, not the quantity of the other material.
 
 Each target holds one slot. Overlapping new targets are assigned to different matching slots where possible; existing locked slots stay in place.
 There are at most 16 targets per villager. They are shared by players and saved with the villager, so any player who can edit that villager's targets can remove them.
@@ -52,7 +53,7 @@ The opt-in test mod is not part of release jars. Run with JDK 25 for Gradle and 
 
 Server tests use real Minecraft registries, trade generation, mixins, loader attachments, the target controller and the reroll controller.
 A synthetic player captures outbound packets; this does not exercise a remote client's connection.
-Tests cover all professions and levels, generated librarian price bounds, exact enchantment/price matching, overlapping targets, lock acquisition, partial rerolls, Undo, stale requests, menu validation, attachment save/load and completed-trade restrictions.
+Tests cover all professions and levels, generated librarian price bounds, exact enchantment/price matching, overlapping targets, lock acquisition, partial rerolls, Undo, stale requests, menu validation, attachment save/load and completed-trade restrictions. Exchange regressions cover flint, cooked cod and cooked salmon before generation and across rerolls, editor payloads, saving, locked ingredients/results, Undo, removal and visible custom offers with emeralds in the second input.
 The test run binds only to loopback on a dynamically assigned port and writes `versions/<target>/build/smoke-run/trade-smoke-result.json`.
 The task fails if the report is missing or reports a failed assertion.
 

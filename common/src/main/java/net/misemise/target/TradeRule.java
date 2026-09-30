@@ -23,10 +23,18 @@ public record TradeRule(String id, ItemStack template, String enchantment, int l
     ).apply(i, TradeRule::new));
 
     public boolean matches(MerchantOffer offer) {
-        int price = offer.getCostA().getCount();
-        return price >= minPrice && price <= maxEmeralds && (buying
-                ? offer.getResult().is(Items.EMERALD) && matchesResult(offer.getCostA())
-                : offer.getCostA().is(Items.EMERALD) && matchesResult(offer.getResult()));
+        ItemStack cost = buying ? offer.getCostA() : emeraldCost(offer);
+        int price = cost.getCount();
+        return !cost.isEmpty() && price >= minPrice && price <= maxEmeralds && (buying
+                ? offer.getResult().is(Items.EMERALD) && matchesResult(cost)
+                : matchesResult(offer.getResult()));
+    }
+
+    public static ItemStack emeraldCost(MerchantOffer offer) {
+        ItemStack first = offer.getCostA();
+        if (first.is(Items.EMERALD)) return first;
+        ItemStack second = offer.getCostB();
+        return second.is(Items.EMERALD) ? second : ItemStack.EMPTY;
     }
 
     public boolean matchesResult(ItemStack result) {
